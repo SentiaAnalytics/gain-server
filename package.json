@@ -1,0 +1,29 @@
+{
+  "name": "testdrive-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:SentiaAnalytics/testdrive-server.git",
+  "author": "Andreas Møller <andreas.moller@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "prebuild": "flow",
+    "build": "babel -d build src",
+    "start": "node build/index.js"
+  },
+  "dependencies": {
+    "flow-bin": "^0.38.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.22.2",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-preset-es2015": "^6.22.0"
+  },
+  "babel": {
+    "plugins": [
+      "transform-flow-strip-types"
+    ],
+    "presets": [
+      "es2015"
+    ]
+  }
+}
