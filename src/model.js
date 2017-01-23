@@ -31,8 +31,8 @@ export type Testdrive = {
 
 export const emptyDriver:Driver = {
   cpr: '',
-  firstname: '',
-  lastname: '',
+  firstName: '',
+  lastName: '',
   email: '',
   phone: '',
   addressLine1: '',
