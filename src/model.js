@@ -1,5 +1,7 @@
 //@flow
 
+export type Dict = {[string]:any}
+
 export type Driver = {
   cpr: string,
   firstname: string,
