@@ -90,7 +90,7 @@ asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
 
-aws-sdk@^2.6.0, aws-sdk@^2.6.9:
+aws-sdk@^2.6.0, aws-sdk@^2.6.9, aws-sdk@^2.7.27:
   version "2.7.27"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.7.27.tgz#6fc4793c166172a0f95af7dce177244cb471c50a"
   dependencies:
@@ -950,6 +950,14 @@ form-data@~2.1.1:
     combined-stream "^1.0.5"
     mime-types "^2.1.12"
 
+forwarded@~0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/forwarded/-/forwarded-0.1.0.tgz#19ef9874c4ae1c297bcf078fde63a09b66a84363"
+
+fresh@0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.3.0.tgz#651f838e22424e7566de161d8358caa199f83d4f"
+
 fs-extra@0.6.4:
   version "0.6.4"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-0.6.4.tgz#f46f0c75b7841f8d200b3348cd4d691d5a099d15"
@@ -1437,6 +1445,10 @@ mock-aws-s3@^2.3.0:
     fs-extra "0.6.4"
     underscore "1.8.3"
 
+moment@2.x.x, moment@^2.15.1:
+  version "2.17.1"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.17.1.tgz#fed9506063f36b10f066c8b59a144d7faebe1d82"
+
 ms@0.7.1:
   version "0.7.1"
   resolved "https://registry.yarnpkg.com/ms/-/ms-0.7.1.tgz#9cd13c03adbff25b65effde7ce864ee952017098"
@@ -1453,7 +1465,17 @@ ncp@~0.4.2:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/ncp/-/ncp-0.4.2.tgz#abcc6cbd3ec2ed2a729ff6e7c1fa8f01784a8574"
 
-node-pre-gyp@^0.6.29:
+negotiator@0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
+
+node-localstorage@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/node-localstorage/-/node-localstorage-1.3.0.tgz#2e436aae8dcc9ace97b43c65c16c0d577be0a55c"
+  dependencies:
+    write-file-atomic "^1.1.4"
+
+node-pre-gyp@0.6.32, node-pre-gyp@^0.6.29:
   version "0.6.32"
   resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.6.32.tgz#fc452b376e7319b3d255f5f34853ef6fd8fe1fd5"
   dependencies:
@@ -1780,6 +1802,14 @@ rimraf@~2.2.0:
   version "2.2.8"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.2.8.tgz#e439be2aaee327321952730f99a8929e4fc50582"
 
+safe-buffer@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.0.1.tgz#d263ca54696cd8a306b5ca6551e92de57918fbe7"
+
+sax@1.1.5, sax@>=0.6.0:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/sax/-/sax-1.1.5.tgz#1da50a8d00cdecd59405659f5ff85349fe773743"
+
 semver@~5.3.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.3.0.tgz#9b2ce5d3de02d17c6012ad326aa6b4d0cf54f94f"
@@ -1967,6 +1997,17 @@ uid-number@~0.0.6:
 underscore@1.8.3:
   version "1.8.3"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.8.3.tgz#4f3fb53b106e6097fcf9cb4109f2a5e9bdfa5022"
+
+unpipe@1.0.0, unpipe@~1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/unpipe/-/unpipe-1.0.0.tgz#b2bf4ee8514aae6165b4817829d21b2ef49904ec"
+
+url@0.10.3:
+  version "0.10.3"
+  resolved "https://registry.yarnpkg.com/url/-/url-0.10.3.tgz#021e4d9c7705f21bbf37d03ceb58767402774c64"
+  dependencies:
+    punycode "1.3.2"
+    querystring "0.2.0"
 
 user-home@^1.1.1:
   version "1.1.1"

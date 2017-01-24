@@ -1,5 +1,16 @@
 //@flow
 
+export type Credentials = {
+  email: string,
+  password: string
+}
+
+export type User = {
+  email: string,
+  password: string,
+  dealership: string
+}
+
 export type Dict = {[string]:any}
 
 export type Driver = {

@@ -1,8 +1,7 @@
 [ignore]
-./node_modules/**
 
 [include]
-./src/**/*.js
+<PROJECT_ROOT>/src/.*
 
 [libs]
 
