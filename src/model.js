@@ -11,6 +11,12 @@ export type User = {
   dealership: string
 }
 
+export type S3Record = {
+  Bucket: string,
+  Key: string,
+  Body: any
+}
+
 export type Dict = {[string]:any}
 
 export type Driver = {
