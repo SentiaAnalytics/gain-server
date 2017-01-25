@@ -23,7 +23,7 @@ describe('licence', () => {
 
     licenceUpload(s3PutStub, 'myUuid')(reqStub, resStub, () => {
       sinon.assert.calledWith(resStatusStub, 200)
-      sinon.assert.calledWith(resSendStub, {url: 'https://myBucket.s3.amazonaws.com/myUuid'})
+      sinon.assert.calledWith(resSendStub, {url: 'https://sentiatestDrive.s3.amazonaws.com/test/userid/myUuid'})
       done()
     })
 
