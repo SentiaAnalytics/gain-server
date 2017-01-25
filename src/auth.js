@@ -28,7 +28,7 @@ export const login = (req:any, res:any) => {
         res.status(401).send(e)
       },
       user => {
-        res.cookie('jwt', jwt.sign(user, SECRET))
+        res.cookie('jwt', jwt.sign(user, SECRET), { maxAge: 900000})
         res.send(user)
       }
     )
