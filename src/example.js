@@ -2,7 +2,6 @@
 import type {Testdrive} from './model'
 import {emptyTestdrive} from './model'
 
-
 const testdrive:Testdrive = Object.assign(
   {},
   emptyTestdrive, {
