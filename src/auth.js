@@ -13,7 +13,7 @@ const log = key => value => (console.log(key, value), value)
 
 const validatePassword = (password:string) => (user:User) =>
   new Task((reject, resolve) =>
-    bcrypt.compare(password, user.password, (err, res) => res ? resolve(user) : reject(err|| 'invalid email or password')))
+    bcrypt.compare(password, user.password, (err, res) => res ? resolve(user) : reject(err|| 'Invalid email or password')))
 
 const validateUser = (password: string) =>
   compose(map(omit(['password'])), chain(validatePassword(password)), getUser)

@@ -1,9 +1,13 @@
 //@flow
 import {query} from './dynamodb'
-import {map} from './util'
+import {chain} from './util'
+import Task from 'data.task'
+
+const getFirstItem = result =>
+  new Task((reject, resolve) => result.Items[0] ? resolve(result.Items[0]): reject('Invalid email or password'))
 
 export const getUser = (email:string) =>
-  map(x=> x.Items[0])(query({
+  chain(getFirstItem)(query({
     TableName: "testdrive-users",
     KeyConditionExpression: "email = :email",
     ExpressionAttributeValues: {
