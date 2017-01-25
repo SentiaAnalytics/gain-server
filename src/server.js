@@ -20,7 +20,7 @@ app.post('/auth', login)
 
 app.get('/test', validate, (req, res) => res.send('ok'))
 
-app.post('ncg/userid/', upload.single('licence'), licenceUpload(put, uuid.v4()))
+app.post('/ncg/userid/', upload.single('licence'), licenceUpload(put, uuid.v4()))
 
 app.use((err, req, res, next) => {
   console.log(err.stack || err)
@@ -29,4 +29,4 @@ app.use((err, req, res, next) => {
 
 app.listen(8080, () => console.log('listening on 8080'))
 
-module.exports = app;
+module.exports = app
