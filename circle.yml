@@ -26,7 +26,7 @@ deployment:
  docker:
     branch: master
     commands:
-      - docker tag sentia/testdrive-server:latest sentia/testdrive-app:rc-$CIRCLE_BUILD_NUM
+      - docker tag sentia/testdrive-server:latest sentia/testdrive-server:rc-$CIRCLE_BUILD_NUM
       - docker push sentia/testdrive-server:latest
       - docker push sentia/testdrive-server:rc-$CIRCLE_BUILD_NUM
       - curl -X POST $DEPLOY_TRIGGER_PRODUCTION
