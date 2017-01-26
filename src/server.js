@@ -8,6 +8,7 @@ import {login, validate} from './auth'
 import licenceUpload from './licence-upload'
 import {put} from './s3'
 import uuid from 'uuid'
+const PORT = process.env.PORT || 8080
 
 const upload = multer()
 
@@ -33,6 +34,6 @@ app.use((err, req, res, next) => {
   res.status(500).send(err)
 })
 
-app.listen(8080, () => console.log('listening on 8080'))
+app.listen(PORT, () => console.log(`listening on ${PORT}`))
 
 module.exports = app
