@@ -6,7 +6,7 @@
   "author": "Andreas Møller <andreas.moller@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "babel -d build src && cp -R src/config build",
+    "build": "babel -d build src",
     "start": "node build/server.js",
     "test": "AWS_ACCESS_KEY_ID=blah AWS_SECRET_ACCESS_KEY=blah S3_ENDPOINT=http://localhost:4569 DYNAMO_ENDPOINT=http://localhost:4567 mocha --require babel-core/register"
   },

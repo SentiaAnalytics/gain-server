@@ -16,6 +16,7 @@ export default {
       region: 'eu-west-1'
     }
   },
+  jwt_secret: process.env.JWT_SECRET,
   licenses: {
     bucket: 'sentiatestDrive'
   },
