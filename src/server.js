@@ -1,12 +1,13 @@
 //@flow
 import express from 'express'
-import config from 'config'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import multer from 'multer'
 import {login, validate} from './auth'
 import licenceUpload from './licence-upload'
-import {put} from './s3'
+import userId from './userid'
+import s3 from './s3'
+import dynamodb from './dynamodb'
 import uuid from 'uuid'
 const PORT = process.env.PORT || 8080
 
@@ -27,7 +28,9 @@ app.post('/auth', login)
 
 app.get('/test', validate, (req, res) => res.send('ok'))
 
-app.post('/ncg/userid', upload.single('licence'), licenceUpload(put, uuid.v4()))
+app.post('/ncg/userid', upload.single('licence'), licenceUpload(s3.put, uuid.v4()))
+
+app.put('/userid', userId(dynamodb.put))
 
 app.use((err, req, res, next) => {
   console.log(err.stack || err)

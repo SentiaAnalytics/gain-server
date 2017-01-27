@@ -1,17 +1,31 @@
 import request from 'supertest'
-import config from 'config'
+import config from '../src/config'
 import path from 'path'
 import app from '../src/server'
 import S3rver from 's3rver';
+import dynalite from 'dynalite'
 import fs from 'fs-extra'
+import {assert} from 'chai'
 
 import AWS from 'aws-sdk'
+
+const dynamodb = new AWS.DynamoDB(config.aws.dynamodb)
+const docclient = new AWS.DynamoDB.DocumentClient(config.aws.dynamodb)
+
+const getFromDb = tableName => keys => {
+  return docclient.get({
+                         TableName: tableName,
+                         Key: {
+                           ...keys
+                         }
+                       }).promise();
+}
 
 describe('server', () => {
 
   describe('/ncg/userid', () => {
 
-    const s3Dir = 'tmp/s3'
+    const s3Dir = path.resolve('test/tmp')
     const Bucket = 'sentiatestDrive'
     let client;
     let s3rver;
@@ -65,4 +79,111 @@ describe('server', () => {
     });
 
   });
+
+  describe('/userid', function () {
+
+    const dbDir = path.resolve('test/mydb')
+    const dynaliteServer = dynalite({path: dbDir, createTableMs: 0});
+
+    const getTestDrive = getFromDb(config.userid.tableName)
+
+    before(done => {
+      fs.removeSync(dbDir);
+      dynaliteServer.listen(4567, function (err) {
+        if (err) done(err);
+
+        dynamodb.createTable({
+                               TableName: config.userid.tableName,
+                               ProvisionedThroughput: {
+                                 ReadCapacityUnits: 10,
+                                 WriteCapacityUnits: 10
+                               },
+                               AttributeDefinitions: [
+                                 {
+                                   AttributeName: "dealership",
+                                   AttributeType: "S"
+                                 },
+                                 {
+                                   AttributeName: "date",
+                                   AttributeType: "S"
+                                 }
+                               ],
+                               KeySchema: [
+                                 {
+                                   AttributeName: "dealership",
+                                   KeyType: "HASH"
+                                 },
+                                 {
+                                   AttributeName: "date",
+                                   KeyType: "RANGE"
+                                 }
+                               ]
+                             }, done);
+      });
+    });
+
+    it('should insert data into dynamodb', (done) => {
+      const driver = {
+        cpr: 'cpr',
+          firstName: 'andreas',
+          lastName: 'moeller',
+          email: 'test@email.com',
+          phone: '1234567',
+          addressLine1: '123 fake street',
+          addressLine2: 'faketown',
+          postcode: 'DK-1401',
+          city: 'copenhagen',
+          country: 'denmark'
+      }
+
+      const car = {
+        make: 'BMW',
+        model: '323',
+        licensePlate: '123dh234'
+      }
+
+      const consent = {
+        base64Signature: '644EFFBLAH'
+      }
+
+      const body = {
+        user: 'user1',
+        date: '2017-04-09T01:00:00+01:00',
+        dealership: 'dealership',
+        driver,
+        car,
+        consent
+      };
+
+      const expected = {
+        user: body.user,
+        date: body.date,
+        dealership: body.dealership,
+        ...driver,
+        ...car,
+        ...consent
+      }
+
+      request(app)
+        .put('/userid')
+        .send(body)
+        .expect(200)
+        .then(res => {
+          getTestDrive({dealership: res.body.dealership, date: res.body.date})
+            .then(actual => {
+              assert.deepEqual(actual.Item, expected)
+              done()
+            })
+            .catch(done)
+        })
+    })
+
+    after(done => {
+      dynaliteServer.close(() => {
+        fs.removeSync(dbDir);
+        done();
+      });
+    });
+
+  })
 });

@@ -8,14 +8,13 @@
   "scripts": {
     "build": "babel -d build src && cp -R src/config build",
     "start": "node build/server.js",
-    "test": "S3_ENDPOINT=http://localhost:4569 mocha --require babel-core/register -t 30000"
+    "test": "AWS_ACCESS_KEY_ID=blah AWS_SECRET_ACCESS_KEY=blah S3_ENDPOINT=http://localhost:4569 DYNAMO_ENDPOINT=http://localhost:4567 mocha --require babel-core/register"
   },
   "dependencies": {
     "aws-sdk": "2.7.x",
     "bcrypt": "^1.0.2",
     "bcryptjs": "^2.4.0",
     "body-parser": "^1.16.0",
-    "config": "^1.24.0",
     "cookie-parser": "^1.4.3",
     "data.task": "^3.1.1",
     "express": "^4.14.0",

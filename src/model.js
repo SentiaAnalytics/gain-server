@@ -17,6 +17,11 @@ export type S3Record = {
   Body: any
 }
 
+export type DynamoDbPutRecord = {
+  TableName: string,
+  Item: Dict
+}
+
 export type Dict = {[string]:any}
 
 export type Driver = {
