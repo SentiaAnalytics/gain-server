@@ -38,7 +38,7 @@ describe('server', () => {
       s3rver = new S3rver({
         port: 4569,
         hostname: 'localhost',
-        silent: false,
+        silent: true,
         directory: s3Dir
       }).run(function (err, host, port) {
         if(err) {
