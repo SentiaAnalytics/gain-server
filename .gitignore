@@ -13,6 +13,7 @@ pids
 .grunt
 
 build/
+test/mydb/
 
 # Dependency directories
 node_modules

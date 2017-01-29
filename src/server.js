@@ -26,6 +26,10 @@ app.use(cookieParser())
 app.get('/health', (req, res) => res.send('ok'))
 app.post('/auth', authenticate)
 
+app.use((req, res, next) => {
+  console.log(req.get('Authorization'))
+  next()
+})
 app.use(validate)
 app.get('/test', (req, res) => res.send('ok'))
 
