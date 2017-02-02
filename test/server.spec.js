@@ -21,7 +21,7 @@ const getFromDb = tableName => keys => {
                        }).promise();
 }
 
-describe.skip('server', () => {
+describe('server', () => {
 
   describe('/ncg/userid', () => {
 

@@ -17,7 +17,6 @@ dependencies:
 
 test:
   override:
-    - yarn run test
     - yarn run build
     - docker build -t sentia/testdrive-server:latest .
     - mkdir -p ~/docker; docker save sentia/testdrive-server:latest > ~/docker/image.tar
