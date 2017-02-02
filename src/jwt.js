@@ -12,3 +12,5 @@ export const verify = (token:string) =>
       err ? reject(err): resolve(data)
     )
   )
+
+export const decode = (token:string) => jwt.decode(token)

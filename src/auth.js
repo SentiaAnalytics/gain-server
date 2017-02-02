@@ -37,6 +37,13 @@ export const validate = (req:any, res:any, next:Function) => {
   jwt.verify(token)
     .fork(
       () => res.status(403).send('Invalid auth token'),
-      () => next()
+      () => {
+        req.user = jwt.decode(token)
+        next()
+      }
     )
+}
+
+export const getSession = (req:any, res:any, next:Function) => {
+    res.send(req.user)
 }

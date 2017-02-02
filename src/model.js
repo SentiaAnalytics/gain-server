@@ -48,6 +48,9 @@ export type Consent = {
 }
 
 export type Testdrive = {
+  user: string,
+  dealership: string,
+  time: string,
   driver: Driver,
   car: Car,
   consent: Consent
@@ -78,6 +81,9 @@ export const emptyConsent:Consent = {
 }
 
 export const emptyTestdrive:Testdrive = {
+  user: '',
+  dealership: '',
+  time: '',
   driver: emptyDriver,
   car: emptyCar,
   consent: emptyConsent

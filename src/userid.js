@@ -1,22 +1,24 @@
 // @flow
-
+import uuid from 'uuid/v4'
 import type {DynamoDbRecord} from './model'
 import config from './config'
 
 export default function(put) {
   return (req, res, next) => {
-    const {user, date, driver, car, consent} = req.body
-
+    const {driver, car, consent} = req.body
+    const {email:user, dealership} = req.user
+    const item = {
+      id: uuid(),
+      user,
+      date:new Date().toUTCString(),
+      dealership,
+      ...driver,
+      ...car,
+      ...consent
+    }
     const dynamoDbParams:DynamoDbRecord = {
       TableName: config.userid.tableName,
-      Item: {
-        user,
-        date,
-        dealership: req.body.dealership,
-        ...driver,
-        ...car,
-        ...consent
-      }
+      Item: item
     }
 
     put(dynamoDbParams)

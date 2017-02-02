@@ -18,9 +18,9 @@ export default {
   },
   jwt_secret: process.env.JWT_SECRET,
   licenses: {
-    bucket: 'sentiatestDrive'
+    bucket: 'sentia-testdrive'
   },
   userid: {
-    tableName: 'testDrive'
+    tableName: 'testdrive-testdrives'
   }
 }
