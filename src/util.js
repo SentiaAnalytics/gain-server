@@ -17,3 +17,6 @@ export const contains = (x:any) => (xs:any[]) =>
 
 export const omit = (keys:string[]) =>
   compose(fromPairs, filter(([k]) => !contains(k)(keys)), toPairs)
+
+export const pick = (keys:string[]) => (obj:Dict) =>
+  keys.reduce((o, k) => ({...o, [k] : obj[k]}), {})

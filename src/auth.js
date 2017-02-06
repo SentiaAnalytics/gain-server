@@ -9,7 +9,7 @@ const log = key => value => (console.log(key, value), value)
 
 const validateUserPassword = (password:string) => (user:User) =>
   crypto.compare(password)(user.password)
-    .map(_ => user)
+    .bimap(_ => "Invalid Email or Password", _ => user)
 
 const validateUser = (password: string) =>
   compose(map(omit(['password'])), chain(validateUserPassword(password)), getUser)
@@ -18,9 +18,7 @@ const validateUser = (password: string) =>
 export const authenticate = (req:any, res:any) => {
   const {password, email} = req.body
   validateUser(password)(email)
-    .map(log('user'))
     .map(user => ({user, token:jwt.sign(user)}))
-    .map(log('userAndToken'))
     .fork(
       e => {
         console.log(e.stack || e)
@@ -39,6 +37,10 @@ export const validate = (req:any, res:any, next:Function) => {
       () => res.status(403).send('Invalid auth token'),
       () => {
         req.user = jwt.decode(token)
+        if (!req.user.dealership) {
+          return next (new Error('user is not associated with a dealership'))
+        }
+        console.log(req.user)
         next()
       }
     )

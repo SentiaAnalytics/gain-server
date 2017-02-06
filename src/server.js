@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser'
 import multer from 'multer'
 import {authenticate, validate, getSession} from './auth'
 import licenceUpload from './licence-upload'
-import userId from './userid'
+import * as testdrives from './testdrives'
 import s3 from './s3'
 import * as dynamodb from './dynamodb'
 import uuid from 'uuid'
@@ -36,7 +36,8 @@ app.get('/auth', getSession)
 
 app.post('/ncg/userid', upload.single('license'), licenceUpload(s3.put, uuid.v4()))
 
-app.put('/userid', userId(dynamodb.put))
+app.get('/testdrives', testdrives.get(dynamodb.query))
+app.post('/testdrives', testdrives.post(dynamodb.put))
 
 app.use((err, req, res, next) => {
   console.log(err.stack || err)

@@ -20,7 +20,7 @@ export default {
   licenses: {
     bucket: 'sentia-testdrive'
   },
-  userid: {
+  testdrives: {
     tableName: 'testdrive-testdrives'
   }
 }
