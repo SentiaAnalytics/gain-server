@@ -7,6 +7,8 @@ export const filter = (f:Function) => (xs:any) => xs.filter(f)
 
 export const compose = (...fs:Function[]) => fs.reduce((g, f) => x => g(f(x)), x => x)
 
+export const mapObj = (f:Function) => (dict:Dict) =>
+  Object.keys(dict).reduce((o, k) => ({...o, [k]: f(dict[k])}), {})
 
 export const toPairs = (dict:Dict) => Object.keys(dict).map(k => [k, dict[k]])
 

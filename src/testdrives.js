@@ -2,13 +2,29 @@
 import uuid from 'uuid/v4'
 import type {DynamoDbRecord} from './model'
 import config from './config'
-import {pick} from './util'
+import {pick, mapObj} from './util'
+
+const TESTDRIVE_REQUEST_PROPS = [
+  'cpr',
+  'licenseUrl',
+  'firstname',
+  'lastname',
+  'addressLine1',
+  'addressLine2',
+  'postcode',
+  'city',
+  'country',
+  'carBrand',
+  'carModel',
+  'licenseplate',
+  'email',
+  'phone'
+]
 
 
 export const get = query =>
   (req, res, next) => {
     const {dealership} = req.user
-    console.log(req.user)
     const params = {
       Limit: 50,
       TableName : config.testdrives.tableName,
@@ -29,21 +45,20 @@ export const get = query =>
 
 export const post = put =>
   (req, res, next) => {
-    const {driver, car, consent} = req.body
-    const {email:user, dealership} = req.user
+    const {user, dealership} = req.user
+    const testdriveRequest = pick(TESTDRIVE_REQUEST_PROPS)(req.body)
     const item = {
       id: uuid(),
       user,
       dealership,
       date:new Date().toUTCString(),
-      driver,
-      car,
-      consent
+      ...testdriveRequest
     }
+
 
     const dynamoDbParams:DynamoDbRecord = {
       TableName: config.testdrives.tableName,
-      Item: item
+      Item: mapObj(x => x === '' ? null : x)(item)
     }
 
     put(dynamoDbParams)
