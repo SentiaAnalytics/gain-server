@@ -24,6 +24,7 @@
     "multer": "^1.2.1",
     "passport": "^0.3.2",
     "passport-cognito": "^0.1.8",
+    "sentia-pnr": "^1.0.0",
     "uuid": "^3.0.1"
   },
   "devDependencies": {

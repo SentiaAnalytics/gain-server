@@ -22,5 +22,11 @@ export default {
   },
   testdrives: {
     tableName: 'testdrive-testdrives'
+  },
+  pnr : {
+    userID: process.env.CPR_USER_ID,
+    username: process.env.CPR_USERNAME,
+    password: process.env.CPR_PASSWORD,
+    host: process.env.CPR_HOST
   }
 }

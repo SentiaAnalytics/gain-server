@@ -9,6 +9,11 @@ import * as testdrives from './testdrives'
 import s3 from './s3'
 import * as dynamodb from './dynamodb'
 import uuid from 'uuid'
+import config from './config'
+import sentiaPnr from 'sentia-pnr'
+
+const pnr = sentiaPnr(config.pnr)
+
 const PORT = process.env.PORT || 8080
 
 const upload = multer()
@@ -33,6 +38,15 @@ app.get('/health', (req, res) => res.send('ok'))
 app.post('/auth', authenticate)
 app.use(validate) // validate auth token. place all other endpoints after this line
 app.get('/auth', getSession)
+
+app.get('/pnr/:pnr', (req, res) =>
+  pnr(req.params.pnr)
+    .then(x => x.body['001'])
+    .then(
+      r => res.send(r),
+      e => res.status(500).send(e)
+    )
+)
 
 app.post('/ncg/userid', upload.single('license'), licenceUpload(s3.put, uuid.v4()))
 
