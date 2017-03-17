@@ -12,4 +12,3 @@ export default {
     client.putObject(params, (err, data) => err ? reject(err) : resolve(data))
   )
 }
-

@@ -50,8 +50,8 @@ app.get('/pnr/:pnr', (req, res) =>
 
 app.post('/ncg/userid', upload.single('license'), licenceUpload(s3.put, uuid.v4()))
 
-app.get('/testdrives', testdrives.get(dynamodb.query))
-app.post('/testdrives', testdrives.post(dynamodb.put))
+app.get('/testdrives', testdrives.getAll)
+app.post('/testdrives', testdrives.create)
 
 app.use((err, req, res, next) => {
   console.log(err.stack || err)

@@ -48,43 +48,25 @@ export type Consent = {
 }
 
 export type Testdrive = {
+  id: string,
   user: string,
   dealership: string,
-  time: string,
-  driver: Driver,
-  car: Car,
-  consent: Consent
-}
-
-export const emptyDriver:Driver = {
-  cpr: '',
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  addressLine1: '',
-  addressLine2: '',
-  postcode: '',
-  city: '',
-  country:''
-}
-
-export const emptyCar:Car = {
-  make: '',
-  model: '',
-  year: '',
-  licensePlate: ''
-}
-
-export const emptyConsent:Consent = {
-  base64Signature: ''
-}
-
-export const emptyTestdrive:Testdrive = {
-  user: '',
-  dealership: '',
-  time: '',
-  driver: emptyDriver,
-  car: emptyCar,
-  consent: emptyConsent
+  date: string,
+  cpr: string,
+  licenseUrl: string,
+  forenames: string,
+  lastname: string,
+  street: string,
+  houseNumber: string,
+  floor: string,
+  apartment: string,
+  postcode: string,
+  city: string,
+  country: string,
+  carBrand: string,
+  carModel: string,
+  licenseplate: string,
+  email: string,
+  mobile: string,
+  base64Signature: string,
 }

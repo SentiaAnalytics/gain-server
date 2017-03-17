@@ -1,7 +1,7 @@
 //@flow
-import {getUser} from './user-repository.js'
+import {getUserWithPassword} from './user-repo'
 import type {User, Credentials} from './model'
-import {map, omit, chain, compose} from './util'
+import {map, omit, chain, compose} from 'ramda'
 import * as jwt from './jwt'
 import * as crypto from './crypto'
 
@@ -12,7 +12,7 @@ const validateUserPassword = (password:string) => (user:User) =>
     .bimap(_ => "Invalid Email or Password", _ => user)
 
 const validateUser = (password: string) =>
-  compose(map(omit(['password'])), chain(validateUserPassword(password)), getUser)
+  compose(map(omit(['password'])), chain(validateUserPassword(password)), getUserWithPassword)
 
 
 export const authenticate = (req:any, res:any) => {

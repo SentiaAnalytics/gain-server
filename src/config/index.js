@@ -9,13 +9,9 @@ export default {
       ...awsCredentials,
       endpoint: process.env.S3_ENDPOINT,
       region: 'eu-west-1'
-    },
-    dynamodb: {
-      ...awsCredentials,
-      endpoint: process.env.DYNAMO_ENDPOINT,
-      region: 'eu-west-1'
     }
   },
+  rethinkdb: process.env.RETHINKDB_URL,
   jwt_secret: process.env.JWT_SECRET,
   licenses: {
     bucket: 'sentia-testdrive'

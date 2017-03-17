@@ -8,7 +8,7 @@
   "scripts": {
     "build": "babel -d build src",
     "start": "node build/server.js",
-    "test": "AWS_ACCESS_KEY_ID=blah AWS_SECRET_ACCESS_KEY=blah S3_ENDPOINT=http://localhost:4569 DYNAMO_ENDPOINT=http://localhost:4567 mocha --require babel-core/register"
+    "test": "tape -r babel-register 'src/**/*.test.js' | tap-spec"
   },
   "dependencies": {
     "aws-sdk": "2.7.x",
@@ -17,14 +17,19 @@
     "body-parser": "^1.16.0",
     "cookie-parser": "^1.4.3",
     "data.task": "^3.1.1",
+    "date-fp": "^5.0.2",
     "express": "^4.14.0",
-    "flow-bin": "^0.38.0",
+    "flow-bin": "^0.41.0",
     "fs-extra": "^2.0.0",
     "jsonwebtoken": "^7.2.1",
     "multer": "^1.2.1",
+    "oolon-rethink": "^6.1.0",
     "passport": "^0.3.2",
     "passport-cognito": "^0.1.8",
+    "ramda": "^0.23.0",
+    "rethinkdb": "^2.3.3",
     "sentia-pnr": "^1.0.0",
+    "tape": "^4.6.3",
     "uuid": "^3.0.1"
   },
   "devDependencies": {
@@ -38,7 +43,8 @@
     "mock-aws-s3": "^2.3.0",
     "s3rver": "^1.0.2",
     "sinon": "^1.17.7",
-    "supertest": "^2.0.1"
+    "supertest": "^2.0.1",
+    "tap-spec": "^4.1.1"
   },
   "babel": {
     "plugins": [

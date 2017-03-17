@@ -1,4 +1,4 @@
-// @flow
+// @flow weak
 
 import fs from 'fs'
 import type {S3Record} from './model'
