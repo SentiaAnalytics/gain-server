@@ -17,6 +17,7 @@ const validateUser = (password: string) =>
 
 export const authenticate = (req:any, res:any) => {
   const {password, email} = req.body
+  console.log(email, password)
   validateUser(password)(email)
     .map(user => ({user, token:jwt.sign(user)}))
     .fork(

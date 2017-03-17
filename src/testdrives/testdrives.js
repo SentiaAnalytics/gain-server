@@ -13,7 +13,7 @@ export const getAll = repo =>
 
 export const create = repo =>
   (req, res, next) => {
-    const {user, dealership} = req.user
+    const {email: user, dealership} = req.user
     const testdriveRequest = req.body
     const item = {
       user,
@@ -21,7 +21,7 @@ export const create = repo =>
       date: D.format('YYYY-MM-DDTHH:mm:ss', new Date()),
       ...testdriveRequest
     }
-    repo.create()
+    repo.create(item)
       .fork(
         e => res.status(401).send(e),
         x => res.send(x)

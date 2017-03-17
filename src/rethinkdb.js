@@ -9,7 +9,7 @@ const wrapPromise = f => (...args:any[]) =>
 
 const query = oolonRethink(config.rethinkdb)
 
-export const toArray = wrapPromise(oolonRethink.toArray)
-export const run = wrapPromise(oolonRethink.run)
-export const each = wrapPromise(oolonRethink.each)
-export const eachAsync = wrapPromise(oolonRethink.eachAsync)
+export const toArray = wrapPromise(query.toArray)
+export const run = wrapPromise(query.run)
+export const each = wrapPromise(query.each)
+export const eachAsync = wrapPromise(query.eachAsync)
