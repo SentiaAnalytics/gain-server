@@ -6,27 +6,34 @@
   "author": "Andreas Møller <andreas.moller@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "config": "source .env",
     "build": "babel -d build src",
     "start": "node build/server.js",
-    "test": "tape -r babel-register 'src/**/*.test.js' | tap-spec"
+    "test": "tape -r babel-register 'src/**/*.test.js' | tap-spec",
+    "dev": "yarn run config && yarn run build && yarn run start"
   },
   "dependencies": {
     "aws-sdk": "2.7.x",
+    "babel-plugin-transform-react-jsx": "^6.23.0",
     "bcrypt": "^1.0.2",
     "bcryptjs": "^2.4.0",
     "body-parser": "^1.16.0",
     "cookie-parser": "^1.4.3",
     "data.task": "^3.1.1",
     "date-fp": "^5.0.2",
+    "emailjs": "^1.0.8",
     "express": "^4.14.0",
     "flow-bin": "^0.41.0",
     "fs-extra": "^2.0.0",
     "jsonwebtoken": "^7.2.1",
     "multer": "^1.2.1",
+    "nodemailer": "^3.1.8",
     "oolon-rethink": "^6.1.0",
     "passport": "^0.3.2",
     "passport-cognito": "^0.1.8",
     "ramda": "^0.23.0",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
     "rethinkdb": "^2.3.3",
     "sentia-pnr": "^1.0.0",
     "tape": "^4.6.3",
@@ -49,7 +56,8 @@
   "babel": {
     "plugins": [
       "transform-flow-strip-types",
-      "transform-object-rest-spread"
+      "transform-object-rest-spread",
+      "transform-react-jsx"
     ],
     "presets": [
       "es2015"

@@ -3,11 +3,10 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import multer from 'multer'
-import {authenticate, validate, getSession} from './auth'
+import * as auth from './auth'
 import licenceUpload from './licence-upload'
 import * as testdrives from './testdrives'
 import s3 from './s3'
-import * as dynamodb from './dynamodb'
 import uuid from 'uuid'
 import config from './config'
 import sentiaPnr from 'sentia-pnr'
@@ -35,9 +34,9 @@ app.use(bodyParser.json())
 app.use(cookieParser())
 
 app.get('/health', (req, res) => res.send('ok'))
-app.post('/auth', authenticate)
-app.use(validate) // validate auth token. place all other endpoints after this line
-app.get('/auth', getSession)
+app.post('/auth', auth.authenticate)
+app.use(auth.validate) // validate auth token. place all other endpoints after this line
+app.get('/auth', auth.getSession)
 
 app.get('/pnr/:pnr', (req, res) =>
   pnr(req.params.pnr)

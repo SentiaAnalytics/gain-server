@@ -18,7 +18,7 @@ export const create = repo =>
     const item = {
       user,
       dealership,
-      date: D.format('YYYY-MM-DDTHH:mm:ss', new Date()),
+      date: D.format('YYYY-MM-DDTHH:mm:ss', D.fromTime(Date.now())),
       ...testdriveRequest
     }
     repo.create(item)

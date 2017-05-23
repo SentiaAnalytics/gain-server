@@ -23,6 +23,14 @@ export default {
     userID: process.env.CPR_USER_ID,
     username: process.env.CPR_USERNAME,
     password: process.env.CPR_PASSWORD,
-    host: process.env.CPR_HOST
+    host: process.env.CPR_HOST,
+    logging: true
+  },
+  emailTransport: {
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD
+    }
   }
 }

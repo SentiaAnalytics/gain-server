@@ -1,9 +1,8 @@
-//@flow
-import {getUserWithPassword} from './user-repo'
-import type {User, Credentials} from './model'
+//@flow weak
+import type {User, Credentials} from '../model'
 import {map, omit, chain, compose} from 'ramda'
-import * as jwt from './jwt'
-import * as crypto from './crypto'
+import * as jwt from '../jwt'
+import * as crypto from '../crypto'
 
 const log = key => value => (console.log(key, value), value)
 
@@ -11,14 +10,13 @@ const validateUserPassword = (password:string) => (user:User) =>
   crypto.compare(password)(user.password)
     .bimap(_ => "Invalid Email or Password", _ => user)
 
-const validateUser = (password: string) =>
-  compose(map(omit(['password'])), chain(validateUserPassword(password)), getUserWithPassword)
+const validateUser = repo => (password: string) =>
+  compose(map(omit(['password'])), chain(validateUserPassword(password)), repo.getUserWithPassword)
 
 
-export const authenticate = (req:any, res:any) => {
+export const authenticate = repo => (req:any, res:any) => {
   const {password, email} = req.body
-  console.log(email, password)
-  validateUser(password)(email)
+  validateUser(repo)(password)(email)
     .map(user => ({user, token:jwt.sign(user)}))
     .fork(
       e => {
