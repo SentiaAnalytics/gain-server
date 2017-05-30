@@ -35,6 +35,7 @@ export const validate = (req:any, res:any, next:Function) => {
     .fork(
       () => res.status(403).send('Invalid auth token'),
       () => {
+        console.log('TOKEN', token)
         req.user = jwt.decode(token)
         if (!req.user.dealership) {
           return next (new Error('user is not associated with a dealership'))

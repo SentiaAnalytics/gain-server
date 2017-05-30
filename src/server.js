@@ -50,7 +50,9 @@ app.get('/pnr/:pnr', (req, res) =>
 app.post('/ncg/userid', upload.single('license'), licenceUpload(s3.put, uuid.v4()))
 
 app.get('/testdrives', testdrives.getAll)
-app.post('/testdrives', testdrives.create)
+app.get('/testdrives/:testdriveId', testdrives.get)
+app.get('/testdrives/:testdriveId/pdf', testdrives.getPDF)
+app.get('/testdrives/:testdriveId/html', testdrives.getHTML)
 
 app.use((err, req, res, next) => {
   console.log(err.stack || err)

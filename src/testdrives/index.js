@@ -3,5 +3,8 @@ import * as testdrives from './testdrives'
 import * as repo from '../testdrive-repo'
 import uuid from 'uuid/v4'
 
+export const get = testdrives.get(repo)
 export const getAll = testdrives.getAll(repo)
+export const getPDF = testdrives.getPDF(repo)
+export const getHTML = testdrives.getHTML(repo)
 export const create = testdrives.create(repo)
