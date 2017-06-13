@@ -11,5 +11,6 @@ export default html =>
         'content-type': 'text/plain'
       }
     })
+    .then(x => x.body)
     .then(resolve, reject)
-  ).map(x => x.body)
+  )

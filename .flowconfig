@@ -1,5 +1,7 @@
 [ignore]
-.*/node_modules/bcryptjs/src/**
+.*/node_modules/bcryptjs/src/.*
+.*/node_modules/sentia-pnr/src/.*
+
 [include]
 
 [libs]

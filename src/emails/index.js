@@ -3,12 +3,13 @@ import * as emails from './emails'
 import nodemailer from 'nodemailer'
 import config from '../config'
 import {compose} from 'ramda'
+import Task from 'data.task'
 const emailTransport = nodemailer.createTransport(config.emailTransport)
 const sendMail = x => emailTransport.sendMail(x)
 
 
-export const sendTestdriveConfirmation =
-  compose(sendMail, emails.testdriveConfirmation)
-
-sendTestdriveConfirmation({email: 'andreas@sentia.io'})
-  .then(console.log, console.log)
+export const sendTestdriveConfirmation = testdrive => testdrivePDF =>
+  new Task((reject, resolve) =>
+    sendMail(emails.testdriveConfirmation(testdrive, testdrivePDF))
+      .then(resolve, reject)
+  )

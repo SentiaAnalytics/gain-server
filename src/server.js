@@ -1,15 +1,15 @@
-//@flow
+//@flow weak
+import 'babel-polyfill'
 import express from 'express'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import multer from 'multer'
-import * as auth from './auth'
 import licenceUpload from './licence-upload'
-import * as testdrives from './testdrives'
 import s3 from './s3'
 import uuid from 'uuid'
 import config from './config'
 import sentiaPnr from 'sentia-pnr'
+import graphql from './graphql'
 
 const pnr = sentiaPnr(config.pnr)
 
@@ -30,29 +30,10 @@ app.use((req, res, next) => {
   next();
 })
 
-app.use(bodyParser.json())
 app.use(cookieParser())
+app.use('/graphql', graphql);
 
 app.get('/health', (req, res) => res.send('ok'))
-app.post('/auth', auth.authenticate)
-app.use(auth.validate) // validate auth token. place all other endpoints after this line
-app.get('/auth', auth.getSession)
-
-app.get('/pnr/:pnr', (req, res) =>
-  pnr(req.params.pnr)
-    .then(x => x.body['001'])
-    .then(
-      r => res.send(r),
-      e => res.status(500).send(e)
-    )
-)
-
-app.post('/ncg/userid', upload.single('license'), licenceUpload(s3.put, uuid.v4()))
-
-app.get('/testdrives', testdrives.getAll)
-app.get('/testdrives/:testdriveId', testdrives.get)
-app.get('/testdrives/:testdriveId/pdf', testdrives.getPDF)
-app.get('/testdrives/:testdriveId/html', testdrives.getHTML)
 
 app.use((err, req, res, next) => {
   console.log(err.stack || err)
