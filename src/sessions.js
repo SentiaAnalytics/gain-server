@@ -11,9 +11,12 @@ import type {Token} from './jwt'
 import * as jwt from './jwt'
 import type {CPRResult} from './cpr'
 import cprLookup from './cpr'
+import type {MySQLResult} from './mysql'
+import mysql from './mysql'
 import {v4 as uuid} from 'uuid'
 import * as crypto from './crypto'
 
+const log = (key:string) => (value:any) => (console.log(key, value), value)
 
 export type Session = {
   token: string,
@@ -22,7 +25,8 @@ export type Session = {
   _dealership: string,
   dealership: () => Promise<Dealership>,
   createTestdrive: (props:{testdriveInput:TestdriveInput}) => Promise<Testdrive>,
-  cprLookup: (props:{cpr:string}) => Promise<CPRResult>
+  cprLookup: (props:{cpr:string}) => Promise<CPRResult>,
+  mysql: (props: {query:string}) => Promise<MySQLResult<string>>
 }
 
 const toSession = (token:string, {_user, _dealership}: Token):Session =>
@@ -40,7 +44,9 @@ const toSession = (token:string, {_user, _dealership}: Token):Session =>
       dealership: _dealership,
       date: D.format('YYYY-MM-DDTHH:mm:ss', new Date())
     }),
-  cprLookup: ({cpr}) => cprLookup(cpr)
+  cprLookup: ({cpr}) => cprLookup(cpr),
+  mysql:({query}) => mysql(query)
+    .then(({data, fields}) => ({data: JSON.stringify(data), fields}))
 })
 
 export const get = async (token:?string):Promise<Session> => {

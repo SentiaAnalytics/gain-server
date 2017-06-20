@@ -11,6 +11,7 @@ export default {
       region: 'eu-west-1'
     }
   },
+  mysql: process.env.MYSQL_URL,
   rethinkdb: process.env.RETHINKDB_URL,
   jwt_secret: process.env.JWT_SECRET,
   licenses: {

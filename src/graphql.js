@@ -110,12 +110,35 @@ const schema = graphql.buildSchema(`
     type: String
   }
 
+  type MySQLField {
+    catalog: String
+    db: String
+    table: String
+    orgTable: String
+    name: String
+    orgName: String
+    charsetNr: Int
+    length: Int
+    type: Int
+    flags: Int
+    decimals: Int
+    default: Boolean
+    zeroFill: Boolean
+    protocol41: Boolean
+  }
+
+  type MySQLResult {
+    data: String
+    fields: [MySQLField]
+  }
+
   type Session {
     token: String!
     user: User!
     dealership: Dealership!
     createTestdrive(testdriveInput:TestdriveInput):Testdrive
     cprLookup(cpr:String!): CPRResult
+    mysql(query:String!):MySQLResult
   }
 
   type Query {
