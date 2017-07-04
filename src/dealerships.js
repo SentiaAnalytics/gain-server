@@ -3,12 +3,17 @@ import * as db from './rethinkdb'
 import r from 'rethinkdb'
 import type {Testdrive} from './testdrives'
 import * as testdrives from './testdrives'
+import type {Queue} from './queues'
+import * as queues from './queues'
 import assert from 'assert'
+
 
 export type Dealership = {
   name:string,
   id:string,
-  testdrives: () => Promise<Testdrive[]>
+  testdrives: () => Promise<Testdrive[]>,
+  queues: () => Promise<Queue[]>,
+  queue: (props: {id: string}) => Promise<Queue>
 }
 
 const toDealership = async (_dealership:*):Promise<Dealership> => {
@@ -19,10 +24,13 @@ const toDealership = async (_dealership:*):Promise<Dealership> => {
   return {
     id: _dealership.id,
     name: _dealership.name,
-    testdrives: () => testdrives.getAll(_dealership.id)
+    testdrives: () => testdrives.getAll(_dealership.id),
+    queues: () => queues.getAll(_dealership.id),
+    queue: ({id}) => queues.get(id)
+      .then(q => q._dealership === _dealership.id ? q : Promise.reject(new Error('Could not fin queue')))
   }
 }
 
 export const get = (id: string):Promise<Dealership> =>
-  db.run(r.db('testdrive').table('dealerships').get(id))
+  db.run(r.table('dealerships').get(id))
     .then(toDealership)

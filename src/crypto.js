@@ -1,7 +1,7 @@
 //@flow
 import bcrypt from 'bcryptjs'
 
-export const hash = (data:string) =>
+export const hash = (data:string):Promise<string> =>
   new Promise((resolve, reject) =>
     bcrypt.genSalt(10, (err, salt) =>
       err ? reject(err) : bcrypt.hash(data, salt, (err, hash) =>
@@ -10,7 +10,7 @@ export const hash = (data:string) =>
     )
   )
 
-export const compare = (plain:string) => (hash:string) =>
+export const compare = (plain:string, hash:string):Promise<string> =>
   new Promise((resolve, reject) =>
     bcrypt.compare(plain, hash, (err, res) =>
       err ? reject(err) : res ? resolve(plain) : reject('wrong password')

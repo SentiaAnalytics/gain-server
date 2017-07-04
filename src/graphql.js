@@ -31,53 +31,55 @@ const schema = graphql.buildSchema(`
   input TestdriveInput {
     driver: DriverInput!
     car: CarInput!
+    signature: String!
+  }
+
+  type Dealership {
+    id: ID
+    name: String
+    testdrives: [Testdrive]
+    queues: [Queue]
+    queue(id:String):Queue
+  }
+
+  type User {
+    id: ID
+    email: String
+    forenames: String
+    lastname: String
+    dealership: Dealership
+  }
+
+  type Testdrive {
+    id: ID
+    user: User
+    dealership: Dealership
+    date: String
+    driver: Driver
+    car: Car
     signature: String
   }
 
   type Driver {
-    email: String!
-    mobile: String!
-    cpr: String!
-    forenames: String!
-    lastname: String!
-    street: String!
-    houseNumber: String!
-    floor: String!
-    apartment: String!
-    postcode: String!
-    city: String!
-    country: String!
-    licenseUrl: String!
+    email: String
+    mobile: String
+    cpr: String
+    forenames: String
+    lastname: String
+    street: String
+    houseNumber: String
+    floor: String
+    apartment: String
+    postcode: String
+    city: String
+    country: String
+    licenseUrl: String
   }
 
   type Car {
-    brand: String!
-    model: String!
-    licenseplate: String!
-  }
-
-  type Testdrive {
-    id: ID!
-    user: User!
-    dealership: Dealership!
-    date: String!
-    driver: Driver!
-    car: Car!
-    signature: String
-  }
-
-  type User {
-    id: ID!
-    email: String!
-    forenames: String!
-    lastname: String!
-    dealership: Dealership!
-  }
-
-  type Dealership {
-    id: ID!
-    name: String!
-    testdrives: [Testdrive]!
+    brand: String
+    model: String
+    licenseplate: String
   }
 
   type CPRResult {
@@ -110,6 +112,11 @@ const schema = graphql.buildSchema(`
     type: String
   }
 
+  type MySQLResult {
+    data: String
+    fields: [MySQLField]
+  }
+
   type MySQLField {
     catalog: String
     db: String
@@ -127,15 +134,31 @@ const schema = graphql.buildSchema(`
     protocol41: Boolean
   }
 
-  type MySQLResult {
-    data: String
-    fields: [MySQLField]
+  type Queue {
+    id: ID!
+    name: String
+    dealership: Dealership
+    visitors: [Visitor]
+    currentVisitors: [Visitor],
+    enqueue(mobile: String): Visitor
+    dequeue(id: String): Visitor
+  }
+
+  type Visitor {
+    id: ID!
+    mobile:String
+    time: String
+    dealership: Dealership
+    queue: Queue
+    position: Int
+    status: String
   }
 
   type Session {
-    token: String!
-    user: User!
-    dealership: Dealership!
+    token: String
+    user: User
+    dealership: Dealership
+    createQueue(name:String):Queue
     createTestdrive(testdriveInput:TestdriveInput):Testdrive
     cprLookup(cpr:String!): CPRResult
     mysql(query:String!):MySQLResult
