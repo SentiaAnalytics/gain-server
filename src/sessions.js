@@ -59,18 +59,13 @@ const toSession = (token:string, {_user, _dealership}: Token):Session =>
 })
 
 export const get = async (token:?string):Promise<Session> => {
-  console.log('getSession', token)
   if (!token) return Promise.reject(new Error('Missing Session Token'))
   const {_user, _dealership} = await jwt.verify(token)
-  console.log('_user', _user)
   return toSession(token, {_user, _dealership})
 }
 
 export const authenticate = async (email:string, password:string):Promise<Session> => {
-  console.log('auth')
   const user = await users.getByEmail(email)
-  console.log('user', user)
   const res = await crypto.compare(password, user.password)
-  console.log('compare pass', res)
   return get(jwt.sign({_user: user.id, _dealership: user._dealership}))
 }

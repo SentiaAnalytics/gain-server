@@ -40,6 +40,8 @@ const schema = graphql.buildSchema(`
     testdrives: [Testdrive]
     queues: [Queue]
     queue(id:String):Queue
+    visitors: [Visitor]
+    visitor(id: String!): Visitor
   }
 
   type User {
@@ -143,7 +145,10 @@ const schema = graphql.buildSchema(`
     enqueue(mobile: String): Visitor
     dequeue(id: String): Visitor
   }
-
+  enum VisitorStatus {
+    Waiting,
+    Served
+  }
   type Visitor {
     id: ID!
     mobile:String
@@ -151,7 +156,7 @@ const schema = graphql.buildSchema(`
     dealership: Dealership
     queue: Queue
     position: Int
-    status: String
+    status: VisitorStatus
   }
 
   type Session {

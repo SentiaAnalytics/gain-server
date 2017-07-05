@@ -6,6 +6,8 @@ import * as testdrives from './testdrives'
 import type {Queue} from './queues'
 import * as queues from './queues'
 import assert from 'assert'
+import type {Visitor} from './visitors'
+import * as visitors from './visitors'
 
 
 export type Dealership = {
@@ -27,7 +29,10 @@ const toDealership = async (_dealership:*):Promise<Dealership> => {
     testdrives: () => testdrives.getAll(_dealership.id),
     queues: () => queues.getAll(_dealership.id),
     queue: ({id}) => queues.get(id)
-      .then(q => q._dealership === _dealership.id ? q : Promise.reject(new Error('Could not fin queue')))
+      .then(q => q._dealership === _dealership.id ? q : Promise.reject(new Error('Could not fin queue'))),
+    visitors: () => visitors.getByDealership(_dealership.id),
+    visitor: ({id}) => visitors.get(id)
+      .then((visitor:Visitor) => visitor.dealership === _dealership.id ? visitor : null)
   }
 }
 

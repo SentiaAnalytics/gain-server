@@ -54,6 +54,11 @@ export const getCurrent = (queue:string):Promise<Visitor[]> =>
   db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: 'waiting'}).orderBy('time'))
     .then(qs => Promise.all(qs.map(toVisitor)))
 
+export const getByDealership = (dealership: string):Promise<Visitor[]> =>
+  db.toArray(r.table('visitors').getAll(dealership, {index: 'dealership'}))
+    .then(rows => Promise.all(rows.map(toVisitor)))
+
+
 export const dequeue = async (id:string):Promise<Visitor> => {
   const visitor = await get(id)
   if (visitor.status !== 'waiting') return Promise.reject(new Error('Visitor must have status waiting'))
