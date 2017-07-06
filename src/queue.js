@@ -8,6 +8,7 @@ export const getQueueInfo = (visitorId: string):Promise<string> => {
     query {
         publicField {
             visitor(id: "${visitorId}") {
+                position
                 mobile
                 time
                 dealership {
@@ -15,7 +16,6 @@ export const getQueueInfo = (visitorId: string):Promise<string> => {
                 }
                 queue {
                     name
-                    position
                 }
             }
         }
