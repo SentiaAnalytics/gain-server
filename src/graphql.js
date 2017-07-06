@@ -5,7 +5,7 @@ import * as sessions from './sessions'
 import * as publicField from './publicField'
 import * as testdrives from './testdrives'
 
-const schema = graphql.buildSchema(`
+export const schema = graphql.buildSchema(`
 
   input CarInput  {
     brand: String!
@@ -181,15 +181,16 @@ const schema = graphql.buildSchema(`
   }
 `)
 
-const root = {
+export const root = {
   session:({token}, req) => sessions.get(token || req.get('Authorization')),
   publicField: publicField.get(),
   authenticate: ({email, password}) => sessions.authenticate(email, password),
 }
-
 
 export default graphqlHTTP({
   schema: schema,
   rootValue: root,
   graphiql: true,
 })
+
+

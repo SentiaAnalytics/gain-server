@@ -10,6 +10,7 @@ import uuid from 'uuid'
 import config from './config'
 import sentiaPnr from 'sentia-pnr'
 import graphql from './graphql'
+import { getQueueInfo } from './queue'
 
 const pnr = sentiaPnr(config.pnr)
 
@@ -32,6 +33,18 @@ app.use((req, res, next) => {
 
 app.use(cookieParser())
 app.use('/graphql', graphql);
+app.get('/queue/:visitorId', (req, res) => {
+  console.log(req.params.visitorId)
+  getQueueInfo(req.params.visitorId)
+    .then(result => {
+      res.send(result)
+    })
+    .catch(
+      error => {
+        res.status(500).send(error)
+      }
+  )
+})
 
 app.get('/health', (req, res) => res.send('ok'))
 
