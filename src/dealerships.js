@@ -32,7 +32,7 @@ const toDealership = async (_dealership:*):Promise<Dealership> => {
       .then(q => q._dealership === _dealership.id ? q : Promise.reject(new Error('Could not fin queue'))),
     visitors: () => visitors.getByDealership(_dealership.id),
     visitor: ({id}) => visitors.get(id)
-      .then((visitor:Visitor) => visitor.dealership === _dealership.id ? visitor : null)
+      .then((visitor:Visitor) => visitor._dealership === _dealership.id ? visitor : null)
   }
 }
 
