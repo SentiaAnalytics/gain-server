@@ -8,7 +8,7 @@ export type Token = {
   _dealership: string
 }
 
-export const sign = (data:Token):string => jwt.sign(data, config.jwt_secret, {expiresIn: 10 * 60})
+export const sign = (data:Token):string => jwt.sign(data, config.jwt_secret, {expiresIn: '10d'})
 
 export const verify = (token:string):Promise<Token> =>
   new Promise((resolve, reject) =>

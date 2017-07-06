@@ -10,6 +10,9 @@ import * as dealerships from './dealerships'
 import type {Queue} from './queues'
 import * as queues from './queues'
 
+const WAITING = "Waiting"
+const SERVED = "Served"
+
 export type Visitor = {
   id: string,
   dealership: () => Promise<Dealership>,
@@ -51,7 +54,7 @@ export const getAll = (queue:string):Promise<Visitor[]> =>
     .then(qs => Promise.all(qs.map(toVisitor)))
 
 export const getCurrent = (queue:string):Promise<Visitor[]> =>
-  db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: 'waiting'}).orderBy('time'))
+  db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: WAITING}).orderBy('time'))
     .then(qs => Promise.all(qs.map(toVisitor)))
 
 export const getByDealership = (dealership: string):Promise<Visitor[]> =>
@@ -61,9 +64,9 @@ export const getByDealership = (dealership: string):Promise<Visitor[]> =>
 
 export const dequeue = async (id:string):Promise<Visitor> => {
   const visitor = await get(id)
-  if (visitor.status !== 'waiting') return Promise.reject(new Error('Visitor must have status waiting'))
+  if (visitor.status !== WAITING) return Promise.reject(new Error('Visitor must have status waiting'))
   const update = {
-    status: 'served',
+    status: SERVED,
     served: D.format('YYYY-MM-DDTHH:mm:ssZ', new Date())
   }
 
@@ -73,15 +76,15 @@ export const dequeue = async (id:string):Promise<Visitor> => {
 
 export const getPositionInQueue = async ({id, dealership, queue}: {id:string, dealership:string, queue:string}):Promise<number> => {
     const q = await get(id)
-    if (q.status !== 'waiting') return Promise.reject(new Error('Item not active in queue'))
-    const items = await db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: 'waiting', dealership}).orderBy('time'))
+    if (q.status !== WAITING) return Promise.reject(new Error('Item not active in queue'))
+    const items = await db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: WAITING, dealership}).orderBy('time'))
     return findIndex(x => x.id === id, items)
 }
 
 export const create = (mobile:string, queue:string, dealership:string) => {
   const visitor = {
     id: uuid(),
-    status: 'waiting',
+    status: WAITING,
     mobile,
     queue,
     dealership,
