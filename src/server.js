@@ -10,7 +10,8 @@ import uuid from 'uuid'
 import config from './config'
 import sentiaPnr from 'sentia-pnr'
 import graphql from './graphql'
-import { getQueueInfo } from './queue'
+import http from 'http'
+import { setupIO } from './realtime-queue'
 
 const pnr = sentiaPnr(config.pnr)
 
@@ -33,6 +34,7 @@ app.use((req, res, next) => {
 
 app.use(cookieParser())
 app.use('/graphql', graphql);
+
 app.get('/queue/:visitorId', (req, res) => {
   console.log(req.params.visitorId)
   getQueueInfo(req.params.visitorId)
@@ -53,6 +55,9 @@ app.use((err, req, res, next) => {
   res.status(500).send(err)
 })
 
-app.listen(PORT, () => console.log(`listening on ${PORT}`))
+const server = http.Server(app);
+const io = setupIO(server);
 
-module.exports = app
+server.listen(PORT, () => console.log(`listening on ${PORT}`))
+
+module.exports = server
