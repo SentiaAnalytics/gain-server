@@ -92,7 +92,7 @@ export const setupIO = (server:Server) => {
                     socket.emit('queue_info', data);
                     const queueId = data.visitor.queue.id;
 
-                    r.db('gain').table('visitors').changes().run(connection,
+                    r.db('gain').table('visitors').filter({'queue': queueId}).changes().run(connection,
                             (err, cursor) => {
                                 cursor.each(() => {
                                     console.log(`Change in queue ${queueId}`);
