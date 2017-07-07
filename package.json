@@ -44,6 +44,7 @@
     "react-dom": "^15.4.2",
     "rethinkdb": "^2.3.3",
     "sentia-pnr": "^1.0.0",
+    "socketio": "^1.0.0",
     "tape": "^4.6.3",
     "uuid": "^3.0.1"
   },
