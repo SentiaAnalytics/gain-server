@@ -30,7 +30,12 @@ export const fetchQueueData = (visitorId: string):Promise => {
         publicField {
             visitor(id: "${visitorId}") {
                 id
+                mobile
                 position
+                dealership {
+                    id
+                    name
+                }
                 queue {
                     id
                     name
