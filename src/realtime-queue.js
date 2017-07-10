@@ -24,7 +24,7 @@ const getConnectionOptions = (url) => {
   }
 }
 
-export const getQueueInfo = (visitorId: string):Promise => {
+export const fetchQueueData = (visitorId: string):Promise => {
     const visitorQuery = `
     query {
         publicField {
@@ -51,7 +51,7 @@ export const getQueueInfo = (visitorId: string):Promise => {
 let sockets = {};
 let users = {};
 
-export const setupIO = (server:Server) => {
+export const setupQueueSocket = (server:Server) => {
     const io = new SocketIO(server);
 
     io.on('connection', (socket) => {
@@ -87,7 +87,7 @@ export const setupIO = (server:Server) => {
                 .then(conn => connection = conn)
                 .catch(console.log)
             
-            getQueueInfo(visitorId)
+            fetchQueueData(visitorId)
                 .then(data => {
                     socket.emit('queue_info', data);
                     const queueId = data.visitor.queue.id;
@@ -96,7 +96,7 @@ export const setupIO = (server:Server) => {
                             (err, cursor) => {
                                 cursor.each(() => {
                                     console.log(`Change in queue ${queueId}`);
-                                    getQueueInfo(visitorId).then(
+                                    fetchQueueData(visitorId).then(
                                         data => {
                                             console.log(data);
                                             socket.emit('queue_info', data)
