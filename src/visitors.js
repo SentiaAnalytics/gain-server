@@ -44,6 +44,7 @@ export const toVisitor = (_visitor:Object):Promise<Visitor> => {
   if (!_visitor) return Promise.reject(new Error('could not find visitor'))
   return Promise.resolve({
     id: _visitor.id,
+    _dealership: _visitor.dealership,
     dealership: () => dealerships.get(_visitor.dealership),
     queue: () => queues.get(_visitor.queue),
     status: _visitor.status,
@@ -66,8 +67,9 @@ const _findIndex = <X>(i:number, f: Predicate<X>, [x, ...xs]:X[]):number => {
 const findIndex = <X>(f: Predicate<X>, xs:X[]): number => _findIndex(0, f, xs)
 
 
-export const get = (id:string) =>
+export const get = (id:string):Promise<Visitor> =>
   db.run(r.table('visitors').get(id))
+    .then(toVisitor)
 
 export const getAll = (queue:string):Promise<Visitor[]> =>
   db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).orderBy('time'))
