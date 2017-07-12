@@ -45,6 +45,7 @@
     "rethinkdb": "^2.3.3",
     "sentia-pnr": "^1.0.0",
     "tape": "^4.6.3",
+    "twilio": "^3.4.0",
     "uuid": "^3.0.1"
   },
   "devDependencies": {

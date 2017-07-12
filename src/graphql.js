@@ -34,6 +34,13 @@ const schema = graphql.buildSchema(`
     signature: String!
   }
 
+  input VisitorInput {
+    name: String
+    mobile: String
+    interests: String,
+    type:String
+  }
+
   type Dealership {
     id: ID
     name: String
@@ -142,16 +149,36 @@ const schema = graphql.buildSchema(`
     dealership: Dealership
     visitors: [Visitor]
     currentVisitors: [Visitor],
-    enqueue(mobile: String): Visitor
+    enqueue(visitor:VisitorInput): Visitor
     dequeue(id: String): Visitor
   }
+
   enum VisitorStatus {
     Waiting,
     Served
   }
+
+  enum VisitorType {
+    Private,
+    Business,
+    PrivateToBusiness,
+    Na
+  }
+
+  enum VisitorInterests {
+    Browsing,
+    Learn,
+    Testdrive,
+    Financing,
+    Buy
+  }
+
   type Visitor {
     id: ID!
     mobile:String
+    name:String
+    interests:VisitorInterests
+    type:VisitorType
     time: String
     dealership: Dealership
     queue: Queue

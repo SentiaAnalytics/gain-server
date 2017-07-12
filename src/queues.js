@@ -15,7 +15,7 @@ export type Queue = {
   _dealership: string,
   visitors: () => Promise<Visitor[]>,
   currentVisitors: () => Promise<Visitor[]>,
-  enqueue: (props: {mobile:string}) => Promise<Visitor>,
+  enqueue: (props: {visitor:Visitor}) => Promise<Visitor>,
   dequeue: (props: {id:string}) => Promise<Visitor>
 }
 
@@ -29,7 +29,7 @@ const toQueue = (_queue:Object):Promise<Queue> => {
     name: _queue.name,
     visitors: () => visitors.getAll(_queue.id),
     currentVisitors: () => visitors.getCurrent(_queue.id),
-    enqueue: ({mobile}) => visitors.create(mobile, _queue.id, _queue.dealership),
+    enqueue: ({visitor}) => visitors.create(visitor, _queue.id, _queue.dealership),
     dequeue: ({id}) => visitors.dequeue(id)
   })
 }

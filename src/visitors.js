@@ -1,5 +1,6 @@
 //@flow
 import * as db from './rethinkdb'
+import * as sms from './sms'
 import r from 'rethinkdb'
 import {v4 as uuid} from 'uuid'
 import D from 'date-fp'
@@ -13,14 +14,30 @@ import * as queues from './queues'
 const WAITING = "Waiting"
 const SERVED = "Served"
 
+export type VisitorInput = {
+  mobile:string,
+  name:string,
+  interests:string,
+  type:string
+}
+
 export type Visitor = {
   id: string,
   dealership: () => Promise<Dealership>,
   queue:() => Promise<Queue>,
   status: string,
   mobile:string,
+  name:string,
+  interests:string,
+  type:string,
   time: string,
   position: () => Promise<number>
+}
+
+const parseMobile = (mob:string) => {
+  if (mob[0] === '+') return mob
+  if (mob.slice(0, 2) === '00') return mob
+  return "+45" + mob 
 }
 
 export const toVisitor = (_visitor:Object):Promise<Visitor> => {
@@ -31,6 +48,9 @@ export const toVisitor = (_visitor:Object):Promise<Visitor> => {
     queue: () => queues.get(_visitor.queue),
     status: _visitor.status,
     mobile: _visitor.mobile,
+    name: _visitor.name,
+    interests: _visitor.interests,
+    type: _visitor.type,
     time: _visitor.time,
     position: () => getPositionInQueue(_visitor)
   })
@@ -81,16 +101,21 @@ export const getPositionInQueue = async ({id, dealership, queue}: {id:string, de
     return findIndex(x => x.id === id, items)
 }
 
-export const create = (mobile:string, queue:string, dealership:string) => {
+export const create = (visitorInput:VisitorInput, queue:string, dealership:string) => {
   const visitor = {
     id: uuid(),
     status: WAITING,
-    mobile,
+    mobile:parseMobile(visitorInput.mobile),
+    name:visitorInput.name,
+    interests:visitorInput.interests,
+    type:visitorInput.type,
     queue,
     dealership,
     time: D.format('YYYY-MM-DDTHH:mm:ssZ', new Date())
   }
   return db.run(r.table('visitors').insert(visitor))
+    .then(() => getPositionInQueue(visitor))
+    .then(pos => sms.send(visitor.mobile, `Thank you you are number ${pos} in the queue. Goto https:://app.gain.ai/visitor/${visitor.id} to see when your turn is up. as well as lots of interesting things about the dealership`))
     .then(() => toVisitor(visitor))
 
 }
