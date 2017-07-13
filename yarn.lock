@@ -2967,9 +2967,9 @@ once@~1.3.0, once@~1.3.3:
   dependencies:
     wrappy "1"
 
-oolon-rethink@^6.1.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/oolon-rethink/-/oolon-rethink-6.1.0.tgz#851a0246cebe5f81edbcc604855d2a65e1e32f6a"
+oolon-rethink@^6.1.1:
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/oolon-rethink/-/oolon-rethink-6.1.1.tgz#f9fe48bf6661c5d276db1e3e5cfec595d4344456"
   dependencies:
     ramda "^0.21.0"
     rethinkdb "^2.3.1"
