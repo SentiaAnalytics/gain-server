@@ -11,6 +11,7 @@ import * as visitors from './visitors'
 export type Queue = {
   id:string,
   name: string,
+  description: string,
   dealership:() => Promise<Dealership>,
   _dealership: string,
   visitors: () => Promise<Visitor[]>,
@@ -27,6 +28,7 @@ const toQueue = (_queue:Object):Promise<Queue> => {
     dealership: () => dealerships.get(_queue.dealership),
     _dealership: _queue.dealership,
     name: _queue.name,
+    description: _queue.description,
     visitors: () => visitors.getAll(_queue.id),
     currentVisitors: () => visitors.getCurrent(_queue.id),
     enqueue: ({visitor}) => visitors.create(visitor, _queue.id, _queue.dealership),
@@ -34,11 +36,12 @@ const toQueue = (_queue:Object):Promise<Queue> => {
   })
 }
 
-export const create = (name:string, dealership:string):Promise<Queue> => {
+export const create = (name:string, description:string, dealership:string):Promise<Queue> => {
   const queue = {
     id: uuid(),
     dealership,
-    name
+    name,
+    description
   }
   return db.run(r.table('queues').insert(queue))
     .then(() => toQueue(queue))

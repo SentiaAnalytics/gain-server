@@ -1,6 +1,7 @@
 //@flow
 import  graphqlHTTP from 'express-graphql'
 import * as graphql from 'graphql'
+import type {Session} from './sessions'
 import * as sessions from './sessions'
 import * as publicField from './publicField'
 import * as testdrives from './testdrives'
@@ -147,6 +148,7 @@ export const schema = graphql.buildSchema(`
   type Queue {
     id: ID!
     name: String
+    description: String
     dealership: Dealership
     visitors: [Visitor]
     currentVisitors: [Visitor],
@@ -191,7 +193,7 @@ export const schema = graphql.buildSchema(`
     token: String
     user: User
     dealership: Dealership
-    createQueue(name:String):Queue
+    createQueue(name:String, description:String):Queue
     createTestdrive(testdriveInput:TestdriveInput):Testdrive
     cprLookup(cpr:String!): CPRResult
     mysql(query:String!):MySQLResult
@@ -208,10 +210,15 @@ export const schema = graphql.buildSchema(`
   }
 `)
 
+type Credentials = {
+  email:string,
+  password:string
+}
+
 export const root = {
-  session:({token}, req) => sessions.get(token || req.get('Authorization')),
+  session:({token}:Session, req:$Request) => sessions.get(token || req.get('Authorization')),
   publicField: publicField.get(),
-  authenticate: ({email, password}) => sessions.authenticate(email, password),
+  authenticate: ({email, password}:Credentials) => sessions.authenticate(email, password),
 }
 
 export default graphqlHTTP({

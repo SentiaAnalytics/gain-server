@@ -4,7 +4,7 @@ import type {Visitor} from './visitors'
 import * as visitors from './visitors'
 
 export type PublicField = {
-  visitor: Visitor 
+  visitor: (arg:{id:string}) => Promise<Visitor> 
 }
 
 const toPublic = ():PublicField =>
