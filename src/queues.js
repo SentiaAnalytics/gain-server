@@ -12,6 +12,7 @@ export type Queue = {
   id:string,
   name: string,
   description: string,
+  order:string,
   dealership:() => Promise<Dealership>,
   _dealership: string,
   visitors: () => Promise<Visitor[]>,
@@ -29,6 +30,7 @@ const toQueue = (_queue:Object):Promise<Queue> => {
     _dealership: _queue.dealership,
     name: _queue.name,
     description: _queue.description,
+    order: _queue.order,
     visitors: () => visitors.getAll(_queue.id),
     currentVisitors: () => visitors.getCurrent(_queue.id),
     enqueue: ({visitor}) => visitors.create(visitor, _queue.id, _queue.dealership),
@@ -36,12 +38,13 @@ const toQueue = (_queue:Object):Promise<Queue> => {
   })
 }
 
-export const create = (name:string, description:string, dealership:string):Promise<Queue> => {
+export const create = (name:string, description:string, order:string, dealership:string):Promise<Queue> => {
   const queue = {
     id: uuid(),
     dealership,
     name,
-    description
+    description,
+    order
   }
   return db.run(r.table('queues').insert(queue))
     .then(() => toQueue(queue))
@@ -52,5 +55,5 @@ export const get = (id:string) =>
     .then(toQueue)
 
 export const getAll = (dealership:string) =>
-  db.toArray(r.table('queues').getAll(dealership, {index:'dealership'}))
+  db.toArray(r.table('queues').getAll(dealership, {index:'dealership'}).orderBy('order'))
     .then(res => Promise.all(res.map(toQueue)))

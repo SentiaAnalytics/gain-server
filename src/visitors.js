@@ -17,7 +17,6 @@ const SERVED = "Served"
 export type VisitorInput = {
   mobile:string,
   name:string,
-  interests:string,
   type:string
 }
 
@@ -28,7 +27,6 @@ export type Visitor = {
   status: string,
   mobile:string,
   name:string,
-  interests:string,
   type:string,
   time: string,
   position: () => Promise<number>
@@ -50,7 +48,6 @@ export const toVisitor = (_visitor:Object):Promise<Visitor> => {
     status: _visitor.status,
     mobile: _visitor.mobile,
     name: _visitor.name,
-    interests: _visitor.interests,
     type: _visitor.type,
     time: _visitor.time,
     position: () => getPositionInQueue(_visitor)
@@ -100,7 +97,7 @@ export const getPositionInQueue = async ({id, dealership, queue}: {id:string, de
     const q = await get(id)
     if (q.status !== WAITING) return Promise.reject(new Error('Item not active in queue'))
     const items = await db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: WAITING, dealership}).orderBy('time'))
-    return findIndex(x => x.id === id, items)
+    return findIndex(x => x.id === id, items) + 1
 }
 
 export const create = (visitorInput:VisitorInput, queue:string, dealership:string) => {
@@ -109,7 +106,6 @@ export const create = (visitorInput:VisitorInput, queue:string, dealership:strin
     status: WAITING,
     mobile:parseMobile(visitorInput.mobile),
     name:visitorInput.name,
-    interests:visitorInput.interests,
     type:visitorInput.type,
     queue,
     dealership,

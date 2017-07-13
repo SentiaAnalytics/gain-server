@@ -39,7 +39,6 @@ export const schema = graphql.buildSchema(`
   input VisitorInput {
     name: String
     mobile: String
-    interests: String,
     type:String
   }
 
@@ -149,6 +148,7 @@ export const schema = graphql.buildSchema(`
     id: ID!
     name: String
     description: String
+    order: String
     dealership: Dealership
     visitors: [Visitor]
     currentVisitors: [Visitor],
@@ -168,19 +168,10 @@ export const schema = graphql.buildSchema(`
     Na
   }
 
-  enum VisitorInterests {
-    Browsing,
-    Learn,
-    Testdrive,
-    Financing,
-    Buy
-  }
-
   type Visitor {
     id: ID!
     mobile:String
     name:String
-    interests:VisitorInterests
     type:VisitorType
     time: String
     dealership: Dealership
@@ -193,7 +184,7 @@ export const schema = graphql.buildSchema(`
     token: String
     user: User
     dealership: Dealership
-    createQueue(name:String, description:String):Queue
+    createQueue(name:String, description:String, order:String):Queue
     createTestdrive(testdriveInput:TestdriveInput):Testdrive
     cprLookup(cpr:String!): CPRResult
     mysql(query:String!):MySQLResult
