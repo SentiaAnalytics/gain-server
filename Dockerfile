@@ -3,10 +3,12 @@ RUN npm i -g yarn
 
 WORKDIR /app
 
-ADD build build
+ADD src src
 COPY package.json package.json
 
 RUN yarn
+
+RUN yarn run build
 
 ENV PORT 80
 ENV AWS_ACCESS_KEY_ID <aws_key_id>
