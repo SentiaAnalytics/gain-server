@@ -5,6 +5,8 @@ import r from 'rethinkdb'
 import {v4 as uuid} from 'uuid'
 import D from 'date-fp'
 
+import type {Session} from './sessions'
+
 import type {Dealership} from './dealerships'
 import * as dealerships from './dealerships'
 
@@ -81,17 +83,7 @@ export const getByDealership = (dealership: string):Promise<Visitor[]> =>
     .then(rows => Promise.all(rows.map(toVisitor)))
 
 
-export const dequeue = async (id:string):Promise<Visitor> => {
-  const visitor = await get(id)
-  if (visitor.status !== WAITING) return Promise.reject(new Error('Visitor must have status waiting'))
-  const update = {
-    status: SERVED,
-    served: D.format('YYYY-MM-DDTHH:mm:ssZ', new Date())
-  }
 
-  await db.run(r.table('visitors').get(id).update(update))
-  return get(id)
-}
 
 export const getPositionInQueue = async ({id, dealership, queue}: {id:string, dealership:string, queue:string}):Promise<number> => {
     const q = await get(id)
@@ -100,7 +92,7 @@ export const getPositionInQueue = async ({id, dealership, queue}: {id:string, de
     return findIndex(x => x.id === id, items) + 1
 }
 
-export const create = (visitorInput:VisitorInput, queue:string, dealership:string) => {
+export const enqueue = (queue:string, visitorInput:VisitorInput) => (session:Session) => {
   const visitor = {
     id: uuid(),
     status: WAITING,
@@ -108,7 +100,7 @@ export const create = (visitorInput:VisitorInput, queue:string, dealership:strin
     name:visitorInput.name,
     type:visitorInput.type,
     queue,
-    dealership,
+    dealership:session._dealership,
     time: D.format('YYYY-MM-DDTHH:mm:ssZ', new Date())
   }
   return db.run(r.table('visitors').insert(visitor))
@@ -116,4 +108,16 @@ export const create = (visitorInput:VisitorInput, queue:string, dealership:strin
     .then(pos => sms.send(visitor.mobile, `Thank you you are number ${pos} in the queue. Goto https:://app.gain.ai/visitor/${visitor.id} to see when your turn is up. as well as lots of interesting things about the dealership`))
     .then(() => toVisitor(visitor))
 
+}
+
+export const dequeue = (id:string) => async (session:Session):Promise<Visitor> => {
+  const visitor = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
+  if (visitor.status !== WAITING) return Promise.reject(new Error('Visitor must have status waiting'))
+  const update = {
+    status: SERVED,
+    served: D.format('YYYY-MM-DDTHH:mm:ssZ', new Date())
+  }
+
+  await db.run(r.table('visitors').get(id).update(update))
+  return get(id)
 }

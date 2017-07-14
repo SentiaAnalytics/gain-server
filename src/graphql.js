@@ -3,6 +3,8 @@ import  graphqlHTTP from 'express-graphql'
 import * as graphql from 'graphql'
 import type {Session} from './sessions'
 import * as sessions from './sessions'
+import type {VisitorInput} from './visitors'
+import * as visitors from './visitors'
 import * as publicField from './publicField'
 import * as testdrives from './testdrives'
 
@@ -152,8 +154,6 @@ export const schema = graphql.buildSchema(`
     dealership: Dealership
     visitors: [Visitor]
     currentVisitors: [Visitor],
-    enqueue(visitor:VisitorInput): Visitor
-    dequeue(id: String): Visitor
   }
 
   enum VisitorStatus {
@@ -193,11 +193,21 @@ export const schema = graphql.buildSchema(`
   type PublicField {
     visitor(id: String): Visitor
   }
+  type Ops {
+    dequeue(visitorId:ID!): Visitor
+    enqueue(queue: String, visitor:VisitorInput): Visitor 
+  }
 
   type Query {
     session(token: String):Session,
     publicField:PublicField,
     authenticate(email: String!, password: String!): Session
+  }
+
+  type Mutation {
+    dequeue(visitorId:ID!): Visitor
+    enqueue(queue: String, visitor:VisitorInput): Visitor 
+    auth(token: String): Ops
   }
 `)
 
@@ -205,11 +215,22 @@ type Credentials = {
   email:string,
   password:string
 }
+type Enqueue = {
+  visitor:VisitorInput,
+  queue: string
+}
+
+type Dequeue = {
+  visitorId: string
+}
+
 
 export const root = {
   session:({token}:Session, req:$Request) => sessions.get(token || req.get('Authorization')),
   publicField: publicField.get(),
   authenticate: ({email, password}:Credentials) => sessions.authenticate(email, password),
+  dequeue: ({visitorId}:Dequeue, req:$Request) =>  sessions.get(req.get('Authorization')).then(visitors.dequeue(visitorId)),
+  enqueue: ({visitor, queue}:Enqueue, req:$Request) =>  sessions.get(req.get('Authorization')).then(visitors.enqueue(queue, visitor))
 }
 
 export default graphqlHTTP({
