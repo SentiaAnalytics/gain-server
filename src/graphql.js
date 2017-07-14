@@ -193,10 +193,6 @@ export const schema = graphql.buildSchema(`
   type PublicField {
     visitor(id: String): Visitor
   }
-  type Ops {
-    dequeue(visitorId:ID!): Visitor
-    enqueue(queue: String, visitor:VisitorInput): Visitor 
-  }
 
   type Query {
     session(token: String):Session,
@@ -207,7 +203,6 @@ export const schema = graphql.buildSchema(`
   type Mutation {
     dequeue(visitorId:ID!): Visitor
     enqueue(queue: String, visitor:VisitorInput): Visitor 
-    auth(token: String): Ops
   }
 `)
 
