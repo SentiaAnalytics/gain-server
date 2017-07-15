@@ -33,5 +33,12 @@ export default {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASSWORD
     }
+  },
+  sms: {
+    accountSid: process.env.TWILIO_SID,
+    authToken: process.env.TWILIO_TOKEN,
+    messagingServiceSid: process.env.TWILIO_MESSAGING_SERVICE,
+    sendSms: process.env.SEND_SMS === "true",
+
   }
 }

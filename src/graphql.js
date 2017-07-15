@@ -39,9 +39,9 @@ export const schema = graphql.buildSchema(`
   }
 
   input VisitorInput {
-    name: String
-    mobile: String
-    type:String
+    name: String!
+    mobile: String!
+    type:String!
   }
 
   type Dealership {
@@ -191,7 +191,7 @@ export const schema = graphql.buildSchema(`
   }
 
   type PublicField {
-    visitor(id: String): Visitor
+    visitor(id: String!): Visitor
   }
 
   type Query {
@@ -202,7 +202,7 @@ export const schema = graphql.buildSchema(`
 
   type Mutation {
     dequeue(visitorId:ID!): Visitor
-    enqueue(queue: String, visitor:VisitorInput): Visitor 
+    enqueue(queue: String!, visitor:VisitorInput!): Visitor 
   }
 `)
 
