@@ -51,7 +51,7 @@ export const schema = graphql.buildSchema(`
     queues: [Queue]
     queue(id:String):Queue
     visitors: [Visitor]
-    visitor(id: String!): Visitor
+    visitor(id: ID!): Visitor
   }
 
   type User {
@@ -158,7 +158,9 @@ export const schema = graphql.buildSchema(`
 
   enum VisitorStatus {
     Waiting,
-    Served
+    Active,
+    Served,
+    Missed
   }
 
   enum VisitorType {
@@ -170,14 +172,17 @@ export const schema = graphql.buildSchema(`
 
   type Visitor {
     id: ID!
-    mobile:String
-    name:String
-    type:VisitorType
-    time: String
-    dealership: Dealership
-    queue: Queue
-    position: Int
-    status: VisitorStatus
+    mobile:String!
+    name:String!
+    type:VisitorType!
+    time_queued: String!
+    dealership: Dealership!
+    queue: Queue!
+    position: Int!
+    visits: [Visitor]!
+    status: VisitorStatus!,
+    time_served: String
+    served_by: User
   }
 
   type Session {

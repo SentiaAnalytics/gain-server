@@ -10,11 +10,16 @@ import type {Session} from './sessions'
 import type {Dealership} from './dealerships'
 import * as dealerships from './dealerships'
 
+import type {User} from './users'
+import * as users from './users'
+
 import type {Queue} from './queues'
 import * as queues from './queues'
 
-const WAITING = "Waiting"
-const SERVED = "Served"
+const STATUS_WAITING = "Waiting"
+const STATUS_SERVED = "Served"
+const STATUS_ACTIVE = "Active"
+const STATUS_MISSED = "Missed"
 
 export type VisitorInput = {
   mobile:string,
@@ -26,12 +31,15 @@ export type Visitor = {
   id: string,
   dealership: () => Promise<Dealership>,
   queue:() => Promise<Queue>,
-  status: string,
   mobile:string,
   name:string,
   type:string,
-  time: string,
-  position: () => Promise<number>
+  position: () => Promise<number>,
+  visits: () => Promise<Visitor[]>,
+  status: string,
+  time_queued: string,
+  time_served: string,
+  served_by: () => ?Promise<User>
 }
 
 const parseMobile = (mob:string) => {
@@ -47,12 +55,16 @@ export const toVisitor = (_visitor:Object):Promise<Visitor> => {
     _dealership: _visitor.dealership,
     dealership: () => dealerships.get(_visitor.dealership),
     queue: () => queues.get(_visitor.queue),
-    status: _visitor.status,
     mobile: _visitor.mobile,
     name: _visitor.name,
     type: _visitor.type,
-    time: _visitor.time,
-    position: () => getPositionInQueue(_visitor)
+    time_queued: _visitor.time_queued,
+    position: () => getPositionInQueue(_visitor),
+    visits: () => getByMobile(_visitor.mobile),
+    status: _visitor.status,
+    time_served: _visitor.time_served,
+    served_by: () => _visitor.served_by ? users.get(_visitor.served_by) : null
+
   })
 }
 
@@ -71,37 +83,39 @@ export const get = (id:string):Promise<Visitor> =>
     .then(toVisitor)
 
 export const getAll = (queue:string):Promise<Visitor[]> =>
-  db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).orderBy('time'))
+  db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).orderBy('time_queued'))
     .then(qs => Promise.all(qs.map(toVisitor)))
 
 export const getCurrent = (queue:string):Promise<Visitor[]> =>
-  db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: WAITING}).orderBy('time'))
+  db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: STATUS_WAITING}).orderBy('time_queued'))
     .then(qs => Promise.all(qs.map(toVisitor)))
 
 export const getByDealership = (dealership: string):Promise<Visitor[]> =>
-  db.toArray(r.table('visitors').getAll(dealership, {index: 'dealership'}))
+  db.toArray(r.table('visitors').getAll(dealership, {index: 'dealership'}).orderBy('time_queued'))
     .then(rows => Promise.all(rows.map(toVisitor)))
 
-
+export const getByMobile = (mobile:string):Promise<Visitor[]> =>
+  db.toArray(r.table('visitors').getAll(mobile, {index: 'mobile'}).orderBy('time_queued'))
+    .then(rows => Promise.all(rows.map(toVisitor)))
 
 
 export const getPositionInQueue = async ({id, dealership, queue}: {id:string, dealership:string, queue:string}):Promise<number> => {
     const q = await get(id)
-    if (q.status !== WAITING) return Promise.reject(new Error('Item not active in queue'))
-    const items = await db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: WAITING, dealership}).orderBy('time'))
+    if (q.status !== STATUS_WAITING) return Promise.reject(new Error('Item not active in queue'))
+    const items = await db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: STATUS_WAITING, dealership}).orderBy('time'))
     return findIndex(x => x.id === id, items) + 1
 }
 
 export const enqueue = (queue:string, visitorInput:VisitorInput) => (session:Session) => {
   const visitor = {
     id: uuid(),
-    status: WAITING,
+    status: STATUS_WAITING,
     mobile:parseMobile(visitorInput.mobile),
     name:visitorInput.name,
     type:visitorInput.type,
     queue,
     dealership:session._dealership,
-    time: D.format('YYYY-MM-DDTHH:mm:ssZ', new Date())
+    time_queued: D.format('YYYY-MM-DDTHH:mm:ssZ', new Date())
   }
   return db.run(r.table('visitors').insert(visitor))
     .then(() => getPositionInQueue(visitor))
@@ -112,10 +126,11 @@ export const enqueue = (queue:string, visitorInput:VisitorInput) => (session:Ses
 
 export const dequeue = (id:string) => async (session:Session):Promise<Visitor> => {
   const visitor = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
-  if (visitor.status !== WAITING) return Promise.reject(new Error('Visitor must have status waiting'))
+  if (visitor.status !== STATUS_WAITING) return Promise.reject(new Error('Visitor must have status waiting'))
   const update = {
-    status: SERVED,
-    served: D.format('YYYY-MM-DDTHH:mm:ssZ', new Date())
+    status: STATUS_ACTIVE,
+    time_served: D.format('YYYY-MM-DDTHH:mm:ssZ', new Date()),
+    served_by: session._user
   }
 
   await db.run(r.table('visitors').get(id).update(update))
