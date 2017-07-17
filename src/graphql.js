@@ -167,8 +167,9 @@ export const schema = graphql.buildSchema(`
     Private,
     Business,
     PrivateToBusiness,
-    Na
+    NotAvailable
   }
+  
 
   type Visitor {
     id: ID!

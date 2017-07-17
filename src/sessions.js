@@ -65,7 +65,12 @@ export const get = async (token:?string):Promise<Session> => {
 }
 
 export const authenticate = async (email:string, password:string):Promise<Session> => {
-  const user = await users.getByEmail(email)
-  const res = await crypto.compare(password, user.password)
+  let user, res;
+  try {
+    user = await users.getByEmail(email)
+    res = await crypto.compare(password, user.password)
+  } catch (e) { 
+    throw new Error('Invalid email or password')  
+  }
   return get(jwt.sign({_user: user.id, _dealership: user._dealership}))
 }

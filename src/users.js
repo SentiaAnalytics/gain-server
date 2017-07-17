@@ -34,8 +34,6 @@ const toUser = async (_user:*):Promise<User> => {
   }
 }
 
-const getFirst = ([x]) => x ? toUser(x) : Promise.reject(new Error('User does not exists'))
-
 export const getByEmail = (email:string):Promise<User> =>
   db.toArray(r.table('users').getAll(email, {index: 'email'}))
     .then(([x]) => x)
