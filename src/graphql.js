@@ -166,7 +166,7 @@ export const schema = graphql.buildSchema(`
     type:VisitorType!
     dealership: Dealership!
     queue: Queue!
-    position: Int!
+    position: Int
     visits: [Visitor]!
     status: VisitorStatus!,
     time_queued: String!

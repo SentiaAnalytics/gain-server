@@ -113,8 +113,8 @@ export const getByMobile = (mobile:string):Promise<Visitor[]> =>
 
 export const getPositionInQueue = async ({id, dealership, queue}: {id:string, dealership:string, queue:string}):Promise<number> => {
     const q = await get(id)
-    if (q.status !== STATUS_WAITING) return Promise.reject(new Error('Item not active in queue'))
-    const items = await db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: STATUS_WAITING, dealership}).orderBy('time'))
+    if (q.status !== STATUS_WAITING) return null
+    const items = await db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: STATUS_WAITING, dealership}).orderBy('time_queued'))
     return findIndex(x => x.id === id, items) + 1
 }
 
