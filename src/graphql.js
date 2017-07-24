@@ -5,7 +5,7 @@ import type {Session} from './sessions'
 import * as sessions from './sessions'
 import type {VisitorInput, VisitorStatus} from './visitors'
 import * as visitors from './visitors'
-import * as publicField from './publicField'
+import * as publicFields from './publicFields'
 import * as testdrives from './testdrives'
 import type {CarInput} from './cars'
 import * as cars from './cars'
@@ -158,6 +158,32 @@ export const schema = graphql.buildSchema(`
     NotAvailable
   }
   
+  type PublicVisitor {
+    id: ID!
+    mobile:String!
+    name:String!
+    type:VisitorType!
+    queue: PublicQueue!
+    position: Int
+    status: VisitorStatus!,
+    time_queued: String!
+    time_served: String
+    time_done: String
+    served_by: PublicUser
+  }
+
+  type PublicQueue {
+    id: ID!
+    name: String
+    description: String
+  }
+
+  type PublicUser {
+    id: ID
+    email: String
+    forenames: String
+    lastname: String
+  }
 
   type Visitor {
     id: ID!
@@ -183,13 +209,13 @@ export const schema = graphql.buildSchema(`
     mysql(query:String!):MySQLResult
   }
 
-  type PublicField {
-    visitor(id: String!): Visitor
+  type Public {
+    visitor(id: String!): PublicVisitor
   }
 
   type Query {
     session(token: String):Session,
-    publicField:PublicField,
+    public:Public,
     authenticate(email: String!, password: String!): Session
   }
 
@@ -222,7 +248,9 @@ type UpdateVisitorStatus = {
 
 export const root = {
   session:({token}:Session, req:$Request) => sessions.get(token || req.get('Authorization')),
-  publicField: publicField.get(),
+  public: {
+    visitor: ({id}: {id:string}) => visitors.get(id).then(v => v)
+  },
   authenticate: ({email, password}:Credentials) => sessions.authenticate(email, password),
   dequeue: ({visitorId}:Dequeue, req:$Request) =>  sessions.get(req.get('Authorization')).then(visitors.dequeue(visitorId)),
   enqueue: ({visitor, queue}:Enqueue, req:$Request) =>  sessions.get(req.get('Authorization')).then(visitors.enqueue(queue, visitor)),
