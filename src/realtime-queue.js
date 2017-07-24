@@ -27,16 +27,12 @@ const getConnectionOptions = (url) => {
 export const fetchQueueData = (visitorId: string):Promise => {
     const visitorQuery = `
     query {
-        publicField {
+        public {
             visitor(id: "${visitorId}") {
                 id
                 mobile
                 position
                 status
-                dealership {
-                    id
-                    name
-                }
                 queue {
                     id
                     name
@@ -49,7 +45,7 @@ export const fetchQueueData = (visitorId: string):Promise => {
             if (result.errors) {
                 return Promise.reject('Errors: ' + result.errors.map(({message}) => message))
             } else {
-                return Promise.resolve(formatDataForSocket(result.data.publicField))
+                return Promise.resolve(formatDataForSocket(result.data.public))
             }
         })
 }
