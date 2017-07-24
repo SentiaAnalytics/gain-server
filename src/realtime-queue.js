@@ -58,6 +58,7 @@ const formatDataForSocket = (data) => {
     return {
         name: data.visitor.queue.name,
         position: data.visitor.position,
+        status: data.visitor.status,
         id: data.visitor.queue.id
     }
 }
@@ -107,6 +108,7 @@ export const setupQueueSocket = (server:Server) => {
                     const queue = await fetchQueueData(visitorId)
                     db_connection = await r.connect(getConnectionOptions(config.rethinkdb))
 
+                    console.log(queue)
                     socket.emit('QueuePosition', {queue: queue})
                     console.log(`Subscribing to changes on queue: ${queue.id}`)
 
@@ -120,7 +122,7 @@ export const setupQueueSocket = (server:Server) => {
                                 subscribeToChanges(visitorId)
                             }
 
-                            cursor.each((queue) => {
+                            cursor.each(() => {
                                 console.log(`Change in queue ${queue.id} for ${visitorId}`);
                                 fetchQueueData(visitorId).then(
                                     queue => {
