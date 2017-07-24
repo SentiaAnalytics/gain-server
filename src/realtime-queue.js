@@ -87,11 +87,9 @@ export const setupQueueSocket = (server:Server) => {
         } else {
             
             let queue = null
-            let connection = null
+            let db_connection = null
             try {
                 queue = await fetchQueueData(visitorId)
-                connection = await r.connect(getConnectionOptions(config.rethinkdb))
-
                 console.log(`Accepting connection from ${visitorId}`)
 
                 sockets[user.id] = socket
@@ -101,35 +99,44 @@ export const setupQueueSocket = (server:Server) => {
                     delete sockets[user.id]
                     delete users[visitorId]
                     
-                    if (connection) {
-                        connection.close();
+                    if (db_connection) {
+                        db_connection.close();
                     }
 
                     console.log(`Disconnect from ${visitorId}`)
                 })
 
-                console.log(queue)
+                const subscribeToChanges = async (visitorId) => {
+                    const queue = await fetchQueueData(visitorId)
+                    db_connection = await r.connect(getConnectionOptions(config.rethinkdb))
 
-                socket.emit('QueuePosition', {queue: queue})
-                console.log(`Subscribing to changes on queue: ${queue.id}`)
+                    socket.emit('QueuePosition', {queue: queue})
+                    console.log(`Subscribing to changes on queue: ${queue.id}`)
 
-                r.db('gain').table('visitors').filter({'queue': queue.id}).changes().run(connection,
-                    (err, cursor) => {
-                        if (err) {
-                            console.log(err)
+                    r.db('gain').table('visitors').filter({'queue': queue.id}).changes().run(db_connection,
+                        async (err, cursor) => {
+                            if (err) {
+                                console.log(err)
+                                if (db_connection) 
+                                    db_connection.close()
+                                db_connection = await r.connect(getConnectionOptions(config.rethinkdb))
+                                subscribeToChanges(visitorId)
+                            }
+
+                            cursor.each((queue) => {
+                                console.log(`Change in queue ${queue.id} for ${visitorId}`);
+                                fetchQueueData(visitorId).then(
+                                    queue => {
+                                        console.log(queue);
+                                        socket.emit('QueuePosition', {queue: queue});
+                                    }
+                                )
+                            })
                         }
+                    )
+                };
 
-                        cursor.each((queue) => {
-                            console.log(`Change in queue ${queue.id} for ${visitorId}`);
-                            fetchQueueData(visitorId).then(
-                                queue => {
-                                    console.log(queue);
-                                    socket.emit('QueuePosition', {queue: queue});
-                                }
-                            )
-                        })
-                    }
-                )
+                subscribeToChanges(visitorId)
 
             } catch (err) {
                 console.log(err)
