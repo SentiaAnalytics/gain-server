@@ -32,6 +32,7 @@ export const fetchQueueData = (visitorId: string):Promise => {
                 id
                 mobile
                 position
+                status
                 dealership {
                     id
                     name
@@ -48,9 +49,17 @@ export const fetchQueueData = (visitorId: string):Promise => {
             if (result.errors) {
                 return Promise.reject('Errors: ' + result.errors.map(({message}) => message))
             } else {
-                return Promise.resolve(result.data.publicField)
+                return Promise.resolve(formatDataForSocket(result.data.publicField))
             }
         })
+}
+
+const formatDataForSocket = (data) => {
+    return {
+        name: data.visitor.queue.name,
+        position: data.visitor.position,
+        id: data.visitor.queue.id
+    }
 }
 
 let sockets = {};
@@ -59,65 +68,73 @@ let users = {};
 export const setupQueueSocket = (server:Server) => {
     const io = new SocketIO(server);
 
-    io.on('connection', (socket) => {
-        const visitorId = socket.handshake.query.visitorId;
+    io.on('connection', async (socket) => {
+        console.log(socket.handshake.query)
+        const visitorId = socket.handshake.query.visitorId
         const user = {
             id: socket.id,
             visitorId: visitorId
-        };
+        }
         
-
-        console.log(`Socket connection from ${visitorId}`);
+        console.log(`Connection attempt from ${socket.id}`)
 
         if (!visitorId) {
-            console.log(`No visitorId supplied`);
-            socket.disconnect();
+            console.log(`No visitorId supplied`)
+            socket.disconnect()
         } else if (visitorId in users) {
-            console.log(`Already have a connection from ${visitorId}`);
-            socket.disconnect();
+            console.log(`Already have a connection from ${visitorId}`)
+            socket.disconnect()
         } else {
-            sockets[user.id] = socket;
-            users[visitorId] = user;
-
-            socket.on('disconnect', () => {
-                delete sockets[user.id]
-                delete users[visitorId]
             
-                console.log(`Disconnect from ${visitorId}`)
-            });
+            let queue = null
+            let connection = null
+            try {
+                queue = await fetchQueueData(visitorId)
+                connection = await r.connect(getConnectionOptions(config.rethinkdb))
 
-            let connection = null;
+                console.log(`Accepting connection from ${visitorId}`)
 
-            r.connect(getConnectionOptions(config.rethinkdb))
-                .then(conn => connection = conn)
-                .catch(console.log)
-            
-            fetchQueueData(visitorId)
-                .then(data => {
-                    socket.emit('queue_info', data);
-                    const queueId = data.visitor.queue.id;
+                sockets[user.id] = socket
+                users[visitorId] = user
 
-                    r.db('gain').table('visitors').filter({'queue': queueId}).changes().run(connection,
-                            (err, cursor) => {
-                                cursor.each(() => {
-                                    console.log(`Change in queue ${queueId}`);
-                                    fetchQueueData(visitorId).then(
-                                        data => {
-                                            console.log(data);
-                                            socket.emit('queue_info', data)
-                                        }
-                                    );
-                                });
-                            }
-                        )
-                })
-                .catch(error => {
-                    console.log(error);
+                socket.on('disconnect', () => {
+                    delete sockets[user.id]
+                    delete users[visitorId]
+                    
                     if (connection) {
                         connection.close();
                     }
-                    socket.disconnect();
-                });
+
+                    console.log(`Disconnect from ${visitorId}`)
+                })
+
+                console.log(queue)
+
+                socket.emit('QueuePosition', {queue: queue})
+                console.log(`Subscribing to changes on queue: ${queue.id}`)
+
+                r.db('gain').table('visitors').filter({'queue': queue.id}).changes().run(connection,
+                    (err, cursor) => {
+                        if (err) {
+                            console.log(err)
+                        }
+
+                        cursor.each((queue) => {
+                            console.log(`Change in queue ${queue.id} for ${visitorId}`);
+                            fetchQueueData(visitorId).then(
+                                queue => {
+                                    console.log(queue);
+                                    socket.emit('QueuePosition', {queue: queue});
+                                }
+                            )
+                        })
+                    }
+                )
+
+            } catch (err) {
+                console.log(err)
+                socket.disconnect()
+            }
         }
     });
 
