@@ -81,9 +81,6 @@ export const setupQueueSocket = (server:Server) => {
         if (!visitorId) {
             console.log(`No visitorId supplied`)
             socket.disconnect()
-        } else if (visitorId in users) {
-            console.log(`Already have a connection from ${visitorId}`)
-            socket.disconnect()
         } else {
             
             let queue = null
