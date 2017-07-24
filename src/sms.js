@@ -2,9 +2,15 @@
 import twilio from 'twilio'
 import config from './config'
 
-const messagingServiceSid = config.sms.messagingServiceSid
-const client = twilio(config.sms.accountSid, config.sms.authToken);
+const setup = () => {
+  if (config.sms.sendSms) {
+    const messagingServiceSid = config.sms.messagingServiceSid
+    const client = twilio(config.sms.accountSid, config.sms.authToken);
 
-export const send = (to:string, body:string) =>
-  config.sms.sendSms ? client.messages.create({ messagingServiceSid, to, body})
-    : Promise.resolve('Sent fake sms')
+    return (to:string, body:string) => client.messages.create({ messagingServiceSid, to, body});
+  } else {
+    return (to:string, body:string) => Promise.resolve('Sent fake sms')
+  }
+}
+
+export const send = setup()
