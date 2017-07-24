@@ -1,4 +1,5 @@
 //@flow
+import * as util from './util'
 import * as db from './rethinkdb'
 import * as sms from './sms'
 import r from 'rethinkdb'
@@ -16,16 +17,24 @@ import * as users from './users'
 import type {Queue} from './queues'
 import * as queues from './queues'
 
-const STATUS_WAITING = "Waiting"
-const STATUS_SERVED = "Served"
-const STATUS_ACTIVE = "Active"
-const STATUS_MISSED = "Missed"
 
 export type VisitorInput = {
   mobile:string,
   name:string,
   type:string
 }
+
+export type VisitorStatus = 
+  | "Waiting"
+  | "Served"
+  | "Active"
+  | "Missed"
+
+
+const STATUS_WAITING:VisitorStatus = "Waiting"
+const STATUS_SERVED:VisitorStatus = "Served"
+const STATUS_ACTIVE:VisitorStatus = "Active"
+const STATUS_MISSED:VisitorStatus = "Missed"
 
 export type Visitor = {
   id: string,
@@ -39,6 +48,7 @@ export type Visitor = {
   status: string,
   time_queued: string,
   time_served: string,
+  time_done: string,
   served_by: () => ?Promise<User>
 }
 
@@ -63,12 +73,14 @@ export const toVisitor = (_visitor:Object):Promise<Visitor> => {
     visits: () => getByMobile(_visitor.mobile),
     status: _visitor.status,
     time_served: _visitor.time_served,
+    time_done: _visitor.time_done,
     served_by: () => _visitor.served_by ? users.get(_visitor.served_by) : null
 
   })
 }
 
 type Predicate<X> = (x:X) => bool
+
 const _findIndex = <X>(i:number, f: Predicate<X>, [x, ...xs]:X[]):number => {
   if (x === undefined) return -1
   if (f(x)) return i
@@ -87,7 +99,7 @@ export const getAll = (queue:string):Promise<Visitor[]> =>
     .then(qs => Promise.all(qs.map(toVisitor)))
 
 export const getCurrent = (queue:string):Promise<Visitor[]> =>
-  db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: STATUS_WAITING}).orderBy('time_queued'))
+  db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter(r.row('status').eq(STATUS_ACTIVE).or(r.row('status').eq(STATUS_WAITING))).orderBy('time_queued'))
     .then(qs => Promise.all(qs.map(toVisitor)))
 
 export const getByDealership = (dealership: string):Promise<Visitor[]> =>
@@ -101,8 +113,8 @@ export const getByMobile = (mobile:string):Promise<Visitor[]> =>
 
 export const getPositionInQueue = async ({id, dealership, queue}: {id:string, dealership:string, queue:string}):Promise<number> => {
     const q = await get(id)
-    if (q.status !== STATUS_WAITING) return Promise.reject(new Error('Item not active in queue'))
-    const items = await db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: STATUS_WAITING, dealership}).orderBy('time'))
+    if (q.status !== STATUS_WAITING) return null
+    const items = await db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter({status: STATUS_WAITING, dealership}).orderBy('time_queued'))
     return findIndex(x => x.id === id, items) + 1
 }
 
@@ -115,7 +127,7 @@ export const enqueue = (queue:string, visitorInput:VisitorInput) => (session:Ses
     type:visitorInput.type,
     queue,
     dealership:session._dealership,
-    time_queued: D.format('YYYY-MM-DDTHH:mm:ssZ', new Date())
+    time_queued: util.getTimestamp()
   }
   return db.run(r.table('visitors').insert(visitor))
     .then(() => getPositionInQueue(visitor))
@@ -129,10 +141,22 @@ export const dequeue = (id:string) => async (session:Session):Promise<Visitor> =
   if (visitor.status !== STATUS_WAITING) return Promise.reject(new Error('Visitor must have status waiting'))
   const update = {
     status: STATUS_ACTIVE,
-    time_served: D.format('YYYY-MM-DDTHH:mm:ssZ', new Date()),
+    time_served: util.getTimestamp(),
     served_by: session._user
   }
 
   await db.run(r.table('visitors').get(id).update(update))
   return get(id)
+}
+
+export const updateStatus = (id:string, status:VisitorStatus) => async (session:Session):Promise<Visitor> => {
+  const visitorBefore = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
+  console.log('visitorBefore', visitorBefore)
+  if (visitorBefore.status !== 'Active') throw new Error(`Visitor must be ${STATUS_ACTIVE} but was ${visitorBefore.status}`)
+
+  await db.run(r.table('visitors').get(id).update({status, time_done: util.getTimestamp()}))
+
+  const visitor = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
+
+  return toVisitor(visitor)
 }

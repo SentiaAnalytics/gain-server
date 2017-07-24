@@ -3,39 +3,20 @@ import  graphqlHTTP from 'express-graphql'
 import * as graphql from 'graphql'
 import type {Session} from './sessions'
 import * as sessions from './sessions'
-import type {VisitorInput} from './visitors'
+import type {VisitorInput, VisitorStatus} from './visitors'
 import * as visitors from './visitors'
 import * as publicField from './publicField'
 import * as testdrives from './testdrives'
+import type {CarInput} from './cars'
+import * as cars from './cars'
 
 export const schema = graphql.buildSchema(`
 
   input CarInput  {
     brand: String!
     model: String!
+    disabled: Boolean
     licenseplate: String!
-  }
-
-  input DriverInput {
-    email: String!
-    mobile: String!
-    cpr: String!
-    forenames: String!
-    lastname: String!
-    street: String!
-    houseNumber: String!
-    floor: String!
-    apartment: String!
-    postcode: String!
-    city: String!
-    country: String!
-    licenseUrl: String!
-  }
-
-  input TestdriveInput {
-    driver: DriverInput!
-    car: CarInput!
-    signature: String!
   }
 
   input VisitorInput {
@@ -45,13 +26,14 @@ export const schema = graphql.buildSchema(`
   }
 
   type Dealership {
-    id: ID
-    name: String
-    testdrives: [Testdrive]
-    queues: [Queue]
+    id: ID!
+    name: String!
+    testdrives: [Testdrive!]!
+    queues: [Queue!]!
     queue(id:String):Queue
-    visitors: [Visitor]
+    visitors: [Visitor!]!
     visitor(id: ID!): Visitor
+    cars: [Car!]!
   }
 
   type User {
@@ -89,9 +71,15 @@ export const schema = graphql.buildSchema(`
   }
 
   type Car {
-    brand: String
-    model: String
-    licenseplate: String
+    id: ID!
+    brand: String!
+    model: String!
+    disabled: Boolean!
+    licenseplate: String!
+    dealership: Dealership!
+    time_created: String!
+    created_by: User!
+
   }
 
   type CPRResult {
@@ -176,13 +164,14 @@ export const schema = graphql.buildSchema(`
     mobile:String!
     name:String!
     type:VisitorType!
-    time_queued: String!
     dealership: Dealership!
     queue: Queue!
-    position: Int!
+    position: Int
     visits: [Visitor]!
     status: VisitorStatus!,
+    time_queued: String!
     time_served: String
+    time_done: String
     served_by: User
   }
 
@@ -190,8 +179,6 @@ export const schema = graphql.buildSchema(`
     token: String
     user: User
     dealership: Dealership
-    createQueue(name:String, description:String, order:String):Queue
-    createTestdrive(testdriveInput:TestdriveInput):Testdrive
     cprLookup(cpr:String!): CPRResult
     mysql(query:String!):MySQLResult
   }
@@ -208,7 +195,11 @@ export const schema = graphql.buildSchema(`
 
   type Mutation {
     dequeue(visitorId:ID!): Visitor
-    enqueue(queue: String!, visitor:VisitorInput!): Visitor 
+    enqueue(queue: String!, visitor:VisitorInput!): Visitor,
+    updateVisitorStatus(visitorId:ID!, status: VisitorStatus!): Visitor
+    createCar(car:CarInput!): Car
+    updateCar(id:ID!, car:CarInput!):Car
+    deleteCar(id:ID!): Boolean
   }
 `)
 
@@ -224,14 +215,22 @@ type Enqueue = {
 type Dequeue = {
   visitorId: string
 }
-
+type UpdateVisitorStatus = {
+  visitorId: string,
+  status: VisitorStatus
+};
 
 export const root = {
   session:({token}:Session, req:$Request) => sessions.get(token || req.get('Authorization')),
   publicField: publicField.get(),
   authenticate: ({email, password}:Credentials) => sessions.authenticate(email, password),
   dequeue: ({visitorId}:Dequeue, req:$Request) =>  sessions.get(req.get('Authorization')).then(visitors.dequeue(visitorId)),
-  enqueue: ({visitor, queue}:Enqueue, req:$Request) =>  sessions.get(req.get('Authorization')).then(visitors.enqueue(queue, visitor))
+  enqueue: ({visitor, queue}:Enqueue, req:$Request) =>  sessions.get(req.get('Authorization')).then(visitors.enqueue(queue, visitor)),
+  updateVisitorStatus: ({visitorId, status}:UpdateVisitorStatus, req:$Request) => sessions.get(req.get('Authorization')).then(visitors.updateStatus(visitorId, status)),
+  createCar: ({car}: {car:CarInput}, req:$Request) => sessions.get(req.get('Authorization')).then(cars.create(car)),
+  updateCar: ({id, car}: {id:string, car:CarInput}, req:$Request) => sessions.get(req.get('Authorization')).then(cars.update(id, car)),
+  deleteCar: ({id}: {id:string}, req:$Request) => sessions.get(req.get('Authorization')).then(cars.del(id)),
+
 }
 
 export default graphqlHTTP({
