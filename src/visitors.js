@@ -89,7 +89,6 @@ const _findIndex = <X>(i:number, f: Predicate<X>, [x, ...xs]:X[]):number => {
 
 const findIndex = <X>(f: Predicate<X>, xs:X[]): number => _findIndex(0, f, xs)
 
-
 export const get = (id:string):Promise<Visitor> =>
   db.run(r.table('visitors').get(id))
     .then(toVisitor)
