@@ -14,6 +14,7 @@ export const schema = graphql.buildSchema(`
   input CarInput  {
     brand: String!
     model: String!
+    disabled: Boolean!
     licenseplate: String!
   }
 

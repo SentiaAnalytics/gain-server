@@ -45,7 +45,6 @@ export const toCar = (_car:*):Car => {
 export const create = (carInput: CarInput) => async (session:Session) => {
   let car = {
     ...carInput,
-    disabled: false,
     id: uuid(),
     time_created: util.getTimestamp(),
     dealership: session._dealership,
