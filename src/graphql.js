@@ -20,7 +20,7 @@ export const schema = graphql.buildSchema(`
   input VisitorInput {
     name: String!
     mobile: String!
-    type:String!
+    type: VisitorType!
   }
 
   type Dealership {
