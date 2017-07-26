@@ -33,9 +33,17 @@ export const fetchQueueData = (visitorId: string):Promise => {
                 mobile
                 position
                 status
+                name
                 queue {
                     id
                     name
+                    description
+                }
+                served_by {
+                    id
+                    email
+                    forenames
+                    lastname
                 }
             }
         }
@@ -45,18 +53,9 @@ export const fetchQueueData = (visitorId: string):Promise => {
             if (result.errors) {
                 return Promise.reject('Errors: ' + result.errors.map(({message}) => message))
             } else {
-                return Promise.resolve(formatDataForSocket(result.data.public))
+                return Promise.resolve(result)
             }
         })
-}
-
-const formatDataForSocket = (data) => {
-    return {
-        name: data.visitor.queue.name,
-        position: data.visitor.position,
-        status: data.visitor.status,
-        id: data.visitor.queue.id
-    }
 }
 
 let sockets = {};
@@ -101,11 +100,13 @@ export const setupQueueSocket = (server:Server) => {
                 })
 
                 const subscribeToChanges = async (visitorId) => {
-                    const queue = await fetchQueueData(visitorId)
+                    const result = await fetchQueueData(visitorId);
+                    const queue = result.data.public.visitor.queue;
+                    console.log(result);
+                    console.log(queue);
                     db_connection = await r.connect(getConnectionOptions(config.rethinkdb))
 
-                    console.log(queue)
-                    socket.emit('QueuePosition', {queue: queue})
+                    socket.emit('UpdateVisitorMessage', result)
                     console.log(`Subscribing to changes on queue: ${queue.id}`)
 
                     r.db('gain').table('visitors').filter({'queue': queue.id}).changes().run(db_connection,
@@ -121,9 +122,8 @@ export const setupQueueSocket = (server:Server) => {
                             cursor.each(() => {
                                 console.log(`Change in queue ${queue.id} for ${visitorId}`);
                                 fetchQueueData(visitorId).then(
-                                    queue => {
-                                        console.log(queue);
-                                        socket.emit('QueuePosition', {queue: queue});
+                                    result => {
+                                        socket.emit('UpdateVisitorMessage', result);
                                     }
                                 )
                             })
