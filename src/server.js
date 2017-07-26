@@ -32,22 +32,20 @@ app.use((req, res, next) => {
   next();
 })
 
+
 app.use(cookieParser())
+
+app.use("/graphql", function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
 app.use('/graphql', graphql);
-
-app.get('/queue/:visitorId', (req, res) => {
-  console.log(req.params.visitorId)
-  fetchQueueData(req.params.visitorId)
-    .then(result => {
-      res.send(result)
-    })
-    .catch(
-      error => {
-        res.status(500).send(error)
-      }
-  )
-})
-
 app.get('/health', (req, res) => res.send('ok'))
 
 app.use((err, req, res, next) => {
