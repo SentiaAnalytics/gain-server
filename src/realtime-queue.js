@@ -9,6 +9,8 @@ import config from './config'
 import r from 'rethinkdb'
 import { parse } from 'url'
 
+import util from 'util';
+
 const getConnectionOptions = (url) => {
   const { hostname, port, path, auth } = parse(url)
   const options = {
@@ -88,50 +90,36 @@ export const setupQueueSocket = (server:Server) => {
                 sockets[user.id] = socket
                 users[visitorId] = user
 
-                socket.on('disconnect', () => {
-                    delete sockets[user.id]
-                    delete users[visitorId]
-                    
-                    if (db_connection) {
-                        db_connection.close();
+                const handleChangeFeedError = async (v_id, q_id) => {
+                    if (v_id in users) {
+                        console.log(`RethinkDB changefeed connection error: ${v_id} in queue ${q_id} -- reconnecting`)
+                        db_connection = await r.connect(getConnectionOptions(config.rethinkdb))
+                        subscribeToChanges(v_id)
+                    } else {
+                        console.log(`RethinkDB changefeed connection for a disconnected visitor: ${v_id} in queue ${q_id} -- doing nothing`)
                     }
+                };
 
-                    console.log(`Disconnect from ${visitorId}`)
-                })
-
-                const subscribeToChanges = async (visitorId) => {
-                    const result = await fetchQueueData(visitorId);
+                const subscribeToChanges = async (v_id) => {
+                    const result = await fetchQueueData(v_id);
                     const queue = result.data.public.visitor.queue;
                     db_connection = await r.connect(getConnectionOptions(config.rethinkdb))
 
                     socket.emit('UpdateVisitorMessage', result)
-                    console.log(`Subscribing to changes on queue: ${queue.id}`)
+                    console.log(`${v_id} subscribing to changes on queue ${queue.id}`)
 
                     r.db('gain').table('visitors').filter({'queue': queue.id}).changes().run(db_connection,
                         async (err, cursor) => {
                             if (err) {
-                                console.log(`Connection error for queue ${queue.id} in run() -- ${err} -- reconnecting`)
-                                if (db_connection) { 
-                                    db_connection.close()
-                                }
-                                db_connection = await r.connect(getConnectionOptions(config.rethinkdb))
-                                subscribeToChanges(visitorId)
+                                handleChangeFeedError(v_id, queue.id)
                             } else cursor.each(async (err, row) => {
                                 if (err) {
-                                    console.log(`Connection error for queue ${queue.id} in cursor.each() -- ${err} -- reconnecting`)
-                                    if (db_connection) {
-                                        db_connection.close()
-                                    }
-                                    db_connection = await r.connect(getConnectionOptions(config.rethinkdb))
-                                    subscribeToChanges(visitorId)
+                                    handleChangeFeedError(v_id, queue.id)
                                 } else {
-                                    console.log(`Change in queue ${queue.id} for ${visitorId}`);
-                                    fetchQueueData(visitorId).then(
-                                        result => {
-                                            console.log(`Sending ${result.query.public.visitor} to ${visitorId}`)
-                                            socket.emit('UpdateVisitorMessage', result);
-                                        }
-                                    )
+                                    console.log(`Change in queue ${queue.id} for ${v_id}`);
+                                    const res = await fetchQueueData(v_id);
+                                    console.log(`Sending ${util.inspect(res, {showhHidden: false, depth:null})} to ${v_id}`)
+                                    socket.emit('UpdateVisitorMessage', res);
                                 }
                             })
                         }
@@ -139,6 +127,16 @@ export const setupQueueSocket = (server:Server) => {
                 };
 
                 subscribeToChanges(visitorId)
+
+                socket.on('disconnect', () => {
+                    console.log(`Disconnect from ${visitorId}`)
+                    delete sockets[user.id]
+                    delete users[visitorId]
+                    
+                    if (db_connection) {
+                        db_connection.close();
+                    }
+                })
 
             } catch (err) {
                 console.log(err)
