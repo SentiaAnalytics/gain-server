@@ -96,7 +96,7 @@ export const setupQueueSocket = (server:Server) => {
                         db_connection = await r.connect(getConnectionOptions(config.rethinkdb))
                         subscribeToChanges(v_id)
                     } else {
-                        console.log(`RethinkDB changefeed connection for a disconnected visitor: ${v_id} in queue ${q_id} -- doing nothing`)
+                        console.log(`RethinkDB changefeed connection error for a disconnected visitor: ${v_id} in queue ${q_id} -- doing nothing`)
                     }
                 };
 
