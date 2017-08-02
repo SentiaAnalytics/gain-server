@@ -11,7 +11,7 @@ import config from './config'
 import sentiaPnr from 'sentia-pnr'
 import graphql from './graphql'
 import http from 'http'
-import { setupQueueSocket, fetchQueueData } from './realtime-queue'
+import { setupVisitorSocket, fetchQueueData } from './realtime-queue'
 
 const pnr = sentiaPnr(config.pnr)
 
@@ -54,7 +54,7 @@ app.use((err, req, res, next) => {
 })
 
 const server = http.Server(app);
-const io = setupQueueSocket(server);
+const io = setupVisitorSocket(server);
 
 server.listen(PORT, () => console.log(`listening on ${PORT}`))
 

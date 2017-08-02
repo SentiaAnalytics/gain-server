@@ -60,90 +60,66 @@ export const fetchQueueData = (visitorId: string):Promise => {
         })
 }
 
-let sockets = {};
-let users = {};
+let visitors = {};
 
-export const setupQueueSocket = (server:Server) => {
+export const setupVisitorSocket = async (server:Server) => {
     const io = new SocketIO(server);
 
     io.on('connection', async (socket) => {
-        console.log(socket.handshake.query)
         const visitorId = socket.handshake.query.visitorId
-        const user = {
-            id: socket.id,
-            visitorId: visitorId
-        }
         
-        console.log(`Connection attempt from ${socket.id}`)
-
         if (!visitorId) {
-            console.log(`No visitorId supplied`)
+            console.log(`Connection attempted by ${socket.id}: No visitorId in handshake -- disconnecting`)
             socket.disconnect()
         } else {
-            
-            let queue = null
-            let db_connection = null
+            console.log(`Connection from ${socket.id}, visitorId: ${visitorId}`)
+
             try {
-                queue = await fetchQueueData(visitorId)
-                console.log(`Accepting connection from ${visitorId}`)
+                const result = await fetchQueueData(visitorId)
 
-                sockets[user.id] = socket
-                users[visitorId] = user
+                const visitor = {
+                    socket: socket,
+                    id: visitorId,
+                    queueId: result.data.public.visitor.queue.id
+                }
 
-                const handleChangeFeedError = async (v_id, q_id) => {
-                    if (v_id in users) {
-                        console.log(`RethinkDB changefeed connection error: ${v_id} in queue ${q_id} -- reconnecting`)
-                        db_connection = await r.connect(getConnectionOptions(config.rethinkdb))
-                        subscribeToChanges(v_id)
-                    } else {
-                        console.log(`RethinkDB changefeed connection error for a disconnected visitor: ${v_id} in queue ${q_id} -- doing nothing`)
-                    }
-                };
-
-                const subscribeToChanges = async (v_id) => {
-                    const result = await fetchQueueData(v_id);
-                    const queue = result.data.public.visitor.queue;
-                    db_connection = await r.connect(getConnectionOptions(config.rethinkdb))
-
-                    socket.emit('UpdateVisitorMessage', result)
-                    console.log(`${v_id} subscribing to changes on queue ${queue.id}`)
-
-                    r.db('gain').table('visitors').filter({'queue': queue.id}).changes().run(db_connection,
-                        async (err, cursor) => {
-                            if (err) {
-                                handleChangeFeedError(v_id, queue.id)
-                            } else cursor.each(async (err, row) => {
-                                if (err) {
-                                    handleChangeFeedError(v_id, queue.id)
-                                } else {
-                                    console.log(`Change in queue ${queue.id} for ${v_id}`);
-                                    const res = await fetchQueueData(v_id);
-                                    console.log(`Sending ${util.inspect(res, {showhHidden: false, depth:null})} to ${v_id}`)
-                                    socket.emit('UpdateVisitorMessage', res);
-                                }
-                            })
-                        }
-                    )
-                };
-
-                subscribeToChanges(visitorId)
+                visitors[socket.id] = visitor
 
                 socket.on('disconnect', () => {
-                    console.log(`Disconnect from ${visitorId}`)
-                    delete sockets[user.id]
-                    delete users[visitorId]
-                    
-                    if (db_connection) {
-                        db_connection.close();
-                    }
+                    console.log(`Disconnect from ${socket.id}, visitorId: ${visitor.id}`)
+                    delete visitors[socket.id]
+                    console.log(`Now serving ${getVisitors().length} visitors`)
                 })
-
-            } catch (err) {
-                console.log(err)
-                socket.disconnect()
+                console.log(`Now serving ${getVisitors().length} visitors`)
             }
+            catch (err) {
+                console.log(`Error when accepting connection from ${socket.id}, visitorId: ${visitorId}: ${err}`)
+                visitors[socket.id].socket.disconnect()
+                delete visitors[socket.id]
+            }            
         }
-    });
-
+    })
     return io
 }
+
+const getVisitors = () => {
+    let list = []
+    let id;
+    for (id in visitors) {
+        if (visitors.hasOwnProperty(id)) {
+            list.push(visitors[id])
+        }
+    }
+
+    return list;
+}
+
+const updateVisitors = async () => {
+    let visitor;
+    getVisitors().forEach(async visitor => {
+        const result = await fetchQueueData(visitor.id)
+        visitor.socket.emit('UpdateVisitorMessage', result)
+    })
+}
+
+setInterval(updateVisitors, 1000)
