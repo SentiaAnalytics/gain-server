@@ -1,22 +1,12 @@
 import SocketIO from 'socket.io'
+import { fetchQueueData } from './visitors-queries'
 
 let visitors = {}
 
-const setupVisitorsSocket = (app, server, path) => {
+const setupVisitorsSocket = (server, path) => {
   console.log(`Setting up visitors socket server at ${path}`)
 
-  app.use(path, function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-    if (req.method === 'OPTIONS') {
-      res.sendStatus(200);
-    } else {
-      next();
-    }
-  });
-
   const io = new SocketIO(server, {path: path});
-  console.log(io)
 
   io.on('connection', async (socket) => {
     const visitorId = socket.handshake.query.visitorId
@@ -28,15 +18,16 @@ const setupVisitorsSocket = (app, server, path) => {
       console.log(`Connection from ${socket.id}, visitorId: ${visitorId}`)
 
       try {
-        const result = await fetchQueueData(visitorId)
-
         const visitor = {
           socket: socket,
-          id: visitorId,
-          queueId: result.data.public.visitor.queue.id
+          id: visitorId
         }
 
         visitors[socket.id] = visitor
+
+        const result = await fetchQueueData(visitorId)
+
+        visitors[socket.id]['queueId'] =result.data.public.visitor.queue.id
 
         socket.on('disconnect', () => {
           console.log(`Disconnect from ${socket.id}, visitorId: ${visitor.id}`)
@@ -47,11 +38,12 @@ const setupVisitorsSocket = (app, server, path) => {
       }
       catch (err) {
         console.log(`Error when accepting connection from ${socket.id}, visitorId: ${visitorId}: ${err}`)
-        visitors[socket.id].socket.disconnect()
+        visitor.socket.disconnect()
         delete visitors[socket.id]
       }            
     }
   })
+
   setInterval(updateVisitors, 1000)
 
   return io

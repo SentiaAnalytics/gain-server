@@ -53,7 +53,7 @@ app.use((err, req, res, next) => {
 })
 
 const server = http.Server(app);
-const io = setupSockets(app, server);
+const io = setupSockets(server);
 
 server.listen(PORT, () => console.log(`listening on ${PORT}`))
 
