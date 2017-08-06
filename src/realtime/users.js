@@ -1,4 +1,4 @@
-const setupUsersSocketServer = (app, server, path) => {
+const setupUsersSocketServer = (server, path) => {
   console.log(`Setting up users socket server at ${path}`)
 }
 
