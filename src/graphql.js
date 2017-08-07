@@ -198,6 +198,17 @@ export const schema = graphql.buildSchema(`
     time_served: String
     time_done: String
     served_by: User
+    email: String
+    cpr: String
+    forenames: String
+    lastname: String
+    street: String
+    houseNumber: String
+    floor: String
+    apartment: String
+    postcode: String
+    city: String
+    country: String
   }
 
   type Session {
