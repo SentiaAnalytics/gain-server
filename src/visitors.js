@@ -49,7 +49,18 @@ export type Visitor = {
   time_queued: string,
   time_served: string,
   time_done: string,
-  served_by: () => ?Promise<User>
+  served_by: () => ?Promise<User>,
+  email: string,
+  cpr: string,
+  forenames: string,
+  lastname: string,
+  street: string,
+  houseNumber: string,
+  floor: string,
+  apartment: string,
+  postcode: string,
+  city: string,
+  country: string
 }
 
 const parseMobile = (mob:string) => {
@@ -74,8 +85,18 @@ export const toVisitor = (_visitor:Object):Promise<Visitor> => {
     status: _visitor.status,
     time_served: _visitor.time_served,
     time_done: _visitor.time_done,
-    served_by: () => _visitor.served_by ? users.get(_visitor.served_by) : null
-
+    served_by: () => _visitor.served_by ? users.get(_visitor.served_by) : null,
+    email: _visitor.email,
+    cpr: _visitor.cpr,
+    forenames: _visitor.forenames,
+    lastname: _visitor.lastname,
+    street: _visitor.street,
+    houseNumber: _visitor.houseNumber,
+    floor: _visitor.floor,
+    apartment: _visitor.apartment,
+    postcode: _visitor.postcode,
+    city: _visitor.city,
+    country: _visitor.country
   })
 }
 

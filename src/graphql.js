@@ -48,25 +48,9 @@ export const schema = graphql.buildSchema(`
     user: User
     dealership: Dealership
     date: String
-    driver: Driver
+    visitor: Visitor
     car: Car
     signature: String
-  }
-
-  type Driver {
-    email: String
-    mobile: String
-    cpr: String
-    forenames: String
-    lastname: String
-    street: String
-    houseNumber: String
-    floor: String
-    apartment: String
-    postcode: String
-    city: String
-    country: String
-    licenseUrl: String
   }
 
   type Car {
@@ -152,9 +136,7 @@ export const schema = graphql.buildSchema(`
 
   enum VisitorType {
     Private,
-    Business,
-    PrivateToBusiness,
-    NotAvailable
+    Business
   }
   
   type PublicVisitor {
