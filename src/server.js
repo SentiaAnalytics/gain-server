@@ -11,7 +11,7 @@ import config from './config'
 import sentiaPnr from 'sentia-pnr'
 import graphql from './graphql'
 import http from 'http'
-import { setupVisitorSocket, fetchQueueData } from './realtime-queue'
+import { setupSockets } from './realtime'
 
 const pnr = sentiaPnr(config.pnr)
 
@@ -32,10 +32,9 @@ app.use((req, res, next) => {
   next();
 })
 
-
 app.use(cookieParser())
 
-app.use("/graphql", function (req, res, next) {
+app.use('/graphql', function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
   if (req.method === 'OPTIONS') {
@@ -54,7 +53,7 @@ app.use((err, req, res, next) => {
 })
 
 const server = http.Server(app);
-const io = setupVisitorSocket(server);
+const io = setupSockets(server);
 
 server.listen(PORT, () => console.log(`listening on ${PORT}`))
 
