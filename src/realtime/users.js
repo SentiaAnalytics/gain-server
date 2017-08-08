@@ -1,17 +1,19 @@
 import SocketIO from 'socket.io'
-import getRethinkdbConnection from './rethinkdb'
+import { config, rethinkConnection } from './rethinkdb'
+import r from 'rethinkdb'
 import { subscribe, unsubscribeAll } from './subscriptions'
-import { fetchDealershipId, fetchDealershipQueues } from './users-queries'
+import { fetchDealershipId, fetchDealershipQueues, fetchDealershipCars } from './users-queries'
+import util from 'util'
 
 const users = new Map()
 
 const subscribeToQueues = async (user) => {
   const { socket, token, dealershipId } = user
  
-  const { connection, table } = await getRethinkdbConnection()
-  const changefeed = table("visitors").filter({"dealership": dealershipId}).changes()
+  const connection = await rethinkConnection()
+  const changefeed = r.table("visitors").filter({"dealership": dealershipId}).changes()
 
-  console.log(`Subscribing ${user.id} to changes in dealership ${dealershipId}`)
+  console.log(`Subscribing ${user.id} to visitor changes in dealership ${dealershipId}`)
 
   const what = async (data) => {
     const result = await fetchDealershipQueues(token)
@@ -19,7 +21,24 @@ const subscribeToQueues = async (user) => {
     socket.emit('UpdateQueuesMessage', result)
   }
 
-  subscribe(socket, user, 'QUEUEqS', connection, changefeed, what)
+  subscribe(socket, user, 'QUEUES', connection, changefeed, what)
+}
+
+const subscribeToCars = async (user) => {
+  const { socket, token, dealershipId } = user
+ 
+  const connection = await rethinkConnection()
+  const changefeed = r.table("cars").filter({"dealership": dealershipId}).changes()
+
+  console.log(`Subscribing ${user.id} to car changes in dealership ${dealershipId}`)
+
+  const what = async (data) => {
+    const result = await fetchDealershipCars(token)
+    console.log(`Sending UpdateCarsMessage to user ${user.id} at socket ${socket.id}`)
+    socket.emit('UpdateCarsMessage', result)
+  }
+
+  subscribe(socket, user, 'CARS', connection, changefeed, what)
 }
 
 const setupUsersSocketServer = (server, path) => {
@@ -53,6 +72,7 @@ const setupUsersSocketServer = (server, path) => {
         const result = await fetchDealershipId(token)
         users.get(socket.id).dealershipId = result.data.session.user.dealership.id
         subscribeToQueues(user)
+        subscribeToCars(user)
         
         socket.on('disconnect', () => {
           console.log(`Disconnect from ${socket.id}, userId: ${user.id}`)
@@ -61,7 +81,7 @@ const setupUsersSocketServer = (server, path) => {
         })
       }
       catch (err) {
-        console.log(`Error when accepting connection from ${socket.id}, userId: ${userId}: ${err}`)
+        console.log(`Error when accepting connection from ${socket.id}, userId: ${userId}: ${util.inspect(err, {depth: null})}`)
         socket.disconnect()
         unsubscribeAll(socket)
         users.delete(socket.id)

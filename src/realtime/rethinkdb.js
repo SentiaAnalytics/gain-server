@@ -17,23 +17,18 @@ const getConnectionOptions = (url) => {
   }
 }
 
-const getRethinkdbConnection = async () => {
+const conf = getConnectionOptions(config.rethinkdb)
+
+const rethinkConnection = async () => {
   console.log(`Establising connection to rethinkDB`)
   
   const conOpts = getConnectionOptions(config.rethinkdb)
-  const c = await r.connect(conOpts, (error, conn) => {
+  return await r.connect(conOpts, (error, conn) => {
     if (error) {
       throw error
     }
     return conn
   })
-
-  return {
-    table: (tablename) => {
-      return r.db(conOpts.db).table(tablename)
-    },
-    connection: c
-  }
 }
 
-export default getRethinkdbConnection
+export { rethinkConnection, conf as config }
