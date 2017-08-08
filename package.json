@@ -8,6 +8,7 @@
   "scripts": {
     "config": "source .env",
     "build": "babel -d build src",
+    "build-with-source-maps": "babel src -d build --source-maps",
     "start": "node build/server.js",
     "test": "tape -r babel-register 'src/**/*.test.js' | tap-spec",
     "dev": "yarn run config && yarn run build && yarn run start",
