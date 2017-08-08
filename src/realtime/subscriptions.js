@@ -36,6 +36,8 @@ export const subscribe = async (socket, subscriberObj, subscriptionId, connectio
             })
         }
     )
+
+    what()
 }
 
 

@@ -3,8 +3,8 @@ import { graphql } from 'graphql'
 
 export const fetchDealershipId = (token: string):Promise => {
   const query = 
-  `query UserID($token: String) {
-    session(token: $token) {
+  `query UserID {
+    session(token: "${token}") {
       user {
         id
         dealership {
@@ -27,8 +27,8 @@ export const fetchDealershipId = (token: string):Promise => {
 
 export const fetchDealershipQueues = (token: string):Promise => {
   const query = 
-  `query DealershipQueues($token: String) {
-    session(token: $token) {
+  `query DealershipQueues {
+    session(token: "${token}") {
       dealership {
         queues {
           id, 
