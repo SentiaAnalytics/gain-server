@@ -17,7 +17,6 @@ const subscribeToQueues = async (user) => {
 
   const what = (data) => {
     fetchDealershipQueues(token).then((result) => {
-      console.log(`Sending UpdateQueuesMessage to user ${user.id} at socket ${socket.id}`)
       socket.emit('UpdateQueuesMessage', result)
     })
   }
@@ -35,7 +34,6 @@ const subscribeToCars = async (user) => {
 
   const what = (data) => {
     fetchDealershipCars(token).then((result) => {
-      console.log(`Sending UpdateCarsMessage to user ${user.id} at socket ${socket.id}`)
       socket.emit('UpdateCarsMessage', result)
     })
   }
