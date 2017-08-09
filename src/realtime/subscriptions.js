@@ -32,7 +32,8 @@ export const subscribe = (id, subscriberObj, subscriptionId, connection, changef
 
             subscribers.get(id).subscriptions.set(subscriptionId, {
                     connection,
-                    cursor
+                    cursor,
+                    timer: setInterval(what, 2000)
                 }
             )
 
@@ -61,8 +62,12 @@ export const unsubscribeAll = (socket) => {
 const unsubscribeNoLog = (socket, subscriptionId) => {
     if (subscribers.has(socket.id)) {
         console.log(`Unsubscribing ${socket.id} from ${subscriptionId}`)
-        subscribers.get(socket.id).subscriptions.get(subscriptionId).cursor.close()
-        subscribers.get(socket.id).subscriptions.get(subscriptionId).connection.close()
+        const subscription = subscribers.get(socket.id).subscriptions.get(subscriptionId)
+        
+        subscription.cursor.close()
+        subscription.connection.close()
+        clearInterval(subscription.timer)
+        
         subscribers.get(socket.id).subscriptions.delete(subscriptionId)
 
         if (subscribers.get(socket.id).subscriptions.size == 0) {
