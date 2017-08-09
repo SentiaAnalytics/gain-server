@@ -10,10 +10,10 @@ const logSubscriptions = () => {
     }
 }
 
-export const subscribe = async (socket, subscriberObj, subscriptionId, connection, changefeed, what) => {
-    if (!subscribers.has(socket.id)) {
-        console.log('Creating new subscriber')
-        subscribers.set(socket.id, {
+export const subscribe = (id, subscriberObj, subscriptionId, connection, changefeed, what) => {
+    if (!subscribers.has(id)) {
+        console.log(`Creating new subscriber ${id}`)
+        subscribers.set(id, {
             subscriber: subscriberObj,
             subscriptions: new Map()
         })
@@ -26,19 +26,20 @@ export const subscribe = async (socket, subscriberObj, subscriptionId, connectio
                 throw error
             }
 
-            if (subscribers.get(socket.id).subscriptions.has(subscriptionId)) {
-                throw `There is already a subscription named ${subscriptionId} for ${socket.id}` 
+            if (subscribers.get(id).subscriptions.has(subscriptionId)) {
+                throw `There is already a subscription named ${subscriptionId} for ${id}` 
             }
 
-            subscribers.get(socket.id).subscriptions.set(subscriptionId, {
+            subscribers.get(id).subscriptions.set(subscriptionId, {
                     connection,
                     cursor
                 }
             )
 
-            console.log(`Created subscription ${subscriptionId} on ${socket.id}`)
+            console.log(`Created subscription ${subscriptionId} on ${id}`)
 
             cursor.each((data) => {
+                console.log(`Update in ${subscriptionId} for ${id}`)
                 what(data)
             })
         }

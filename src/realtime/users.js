@@ -1,5 +1,5 @@
 import SocketIO from 'socket.io'
-import { config, rethinkConnection } from './rethinkdb'
+import { rethinkConnection } from './rethinkdb'
 import r from 'rethinkdb'
 import { subscribe, unsubscribeAll } from './subscriptions'
 import { fetchDealershipId, fetchDealershipQueues, fetchDealershipCars } from './users-queries'
@@ -15,13 +15,14 @@ const subscribeToQueues = async (user) => {
 
   console.log(`Subscribing ${user.id} to visitor changes in dealership ${dealershipId}`)
 
-  const what = async (data) => {
-    const result = await fetchDealershipQueues(token)
-    console.log(`Sending UpdateQueuesMessage to user ${user.id} at socket ${socket.id}`)
-    socket.emit('UpdateQueuesMessage', result)
+  const what = (data) => {
+    fetchDealershipQueues(token).then((result) => {
+      console.log(`Sending UpdateQueuesMessage to user ${user.id} at socket ${socket.id}`)
+      socket.emit('UpdateQueuesMessage', result)
+    })
   }
 
-  subscribe(socket, user, 'QUEUES', connection, changefeed, what)
+  subscribe(socket.id, user, 'QUEUES', connection, changefeed, what)
 }
 
 const subscribeToCars = async (user) => {
@@ -32,13 +33,14 @@ const subscribeToCars = async (user) => {
 
   console.log(`Subscribing ${user.id} to car changes in dealership ${dealershipId}`)
 
-  const what = async (data) => {
-    const result = await fetchDealershipCars(token)
-    console.log(`Sending UpdateCarsMessage to user ${user.id} at socket ${socket.id}`)
-    socket.emit('UpdateCarsMessage', result)
+  const what = (data) => {
+    fetchDealershipCars(token).then((result) => {
+      console.log(`Sending UpdateCarsMessage to user ${user.id} at socket ${socket.id}`)
+      socket.emit('UpdateCarsMessage', result)
+    })
   }
 
-  subscribe(socket, user, 'CARS', connection, changefeed, what)
+  subscribe(socket.id, user, 'CARS', connection, changefeed, what)
 }
 
 const setupUsersSocketServer = (server, path) => {

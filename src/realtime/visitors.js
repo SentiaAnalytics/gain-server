@@ -10,12 +10,11 @@ const subscribeToQueueChanges = async (visitor) => {
 
   const { connection, table } = await getRethinkdbConnection()
   const changefeed = table("visitors").filter({"queue": queueId}).changes()
-  const what = async (data) => {
-    const result = await fetchQueueData(visitor.id)
-    socket.emit('UpdateVisitorMessage', result)
+  const what = (data) => {
+    fetchQueueData(visitor.id).then((result) => socket.emit('UpdateVisitorMessage', result))
   }
 
-  subscribe(socket, visitor, 'VISITOR', connection, changefeed, what)
+  subscribe(socket.id, visitor, 'VISITOR', connection, changefeed, what)
 }
 
 const setupVisitorsSocket = (server, path) => {
