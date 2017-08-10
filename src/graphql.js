@@ -135,8 +135,11 @@ export const schema = graphql.buildSchema(`
   }
 
   enum VisitorType {
+    NotAsked,
     Private,
-    Business
+    PrivateToBusiness,
+    Business,
+    NotAvailable
   }
   
   type PublicVisitor {
