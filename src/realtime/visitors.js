@@ -1,15 +1,16 @@
 import SocketIO from 'socket.io'
+import { rethinkConnection } from './rethinkdb'
+import r from 'rethinkdb'
 import { subscribe, unsubscribeAll } from './subscriptions'
 import { fetchQueueData } from './visitors-queries'
-import getRethinkdbConnection from './rethinkdb'
 
 const visitors = new Map()
 
 const subscribeToQueueChanges = async (visitor) => {
   const { queueId, socket } = visitor
 
-  const { connection, table } = await getRethinkdbConnection()
-  const changefeed = table("visitors").filter({"queue": queueId}).changes()
+  const connection = await rethinkConnection()
+  const changefeed = r.table("visitors").filter({"queue": queueId}).changes()
   const what = (data) => {
     fetchQueueData(visitor.id).then((result) => socket.emit('UpdateVisitorMessage', result))
   }
