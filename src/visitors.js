@@ -39,7 +39,9 @@ const STATUS_MISSED:VisitorStatus = "Missed"
 export type Visitor = {
   id: string,
   dealership: () => Promise<Dealership>,
+  _dealership: string,
   queue:() => Promise<Queue>,
+  _queue: string,
   mobile:string,
   name:string,
   type:string,
@@ -50,6 +52,25 @@ export type Visitor = {
   time_served: string,
   time_done: string,
   served_by: () => ?Promise<User>,
+  _served_by: string,
+  email: string,
+  cpr: string,
+  forenames: string,
+  lastname: string,
+  street: string,
+  houseNumber: string,
+  floor: string,
+  apartment: string,
+  postcode: string,
+  city: string,
+  country: string
+}
+
+type VisitorUpdate = {
+  mobile:string,
+  name:string,
+  type:string,
+  status: string,
   email: string,
   cpr: string,
   forenames: string,
@@ -76,6 +97,7 @@ export const toVisitor = (_visitor:Object):Promise<Visitor> => {
     _dealership: _visitor.dealership,
     dealership: () => dealerships.get(_visitor.dealership),
     queue: () => queues.get(_visitor.queue),
+    _queue: _visitor.queue,
     mobile: _visitor.mobile,
     name: _visitor.name,
     type: _visitor.type,
@@ -86,6 +108,7 @@ export const toVisitor = (_visitor:Object):Promise<Visitor> => {
     time_served: _visitor.time_served,
     time_done: _visitor.time_done,
     served_by: () => _visitor.served_by ? users.get(_visitor.served_by) : null,
+    _served_by: _visitor.served_by,
     email: _visitor.email,
     cpr: _visitor.cpr,
     forenames: _visitor.forenames,
@@ -178,5 +201,13 @@ export const updateStatus = (id:string, status:VisitorStatus) => async (session:
 
   const visitor = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
 
+  return toVisitor(visitor)
+}
+
+export const update = (id:string, visitorUpdate:VisitorUpdate) => async (session:Session):Promise<Visitor> => {
+  const visitorBefore = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
+  if (visitorBefore.status !== 'Active') throw new Error(`Visitor must be ${STATUS_ACTIVE} but was ${visitorBefore.status}`)
+  await db.run(r.table('visitors').get(id).update(visitorUpdate))
+  const visitor = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
   return toVisitor(visitor)
 }

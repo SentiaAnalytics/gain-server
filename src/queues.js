@@ -7,6 +7,7 @@ import type {Dealership} from './dealerships'
 import * as dealerships from './dealerships'
 import type {Visitor} from './visitors'
 import * as visitors from './visitors'
+import type {Session} from './sessions'
 
 export type Queue = {
   id:string,
@@ -34,10 +35,10 @@ const toQueue = (_queue:Object):Promise<Queue> => {
   })
 }
 
-export const create = (name:string, description:string, order:string, dealership:string):Promise<Queue> => {
+export const create = (name:string, description:string, order:string) => (session:Session):Promise<Queue> => {
   const queue = {
     id: uuid(),
-    dealership,
+    dealership: session._dealership,
     name,
     description,
     order

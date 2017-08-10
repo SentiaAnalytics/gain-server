@@ -3,11 +3,12 @@ import  graphqlHTTP from 'express-graphql'
 import * as graphql from 'graphql'
 import type {Session} from './sessions'
 import * as sessions from './sessions'
-import type {VisitorInput, VisitorStatus} from './visitors'
+import type {VisitorInput, VisitorStatus, VisitorUpdate} from './visitors'
 import * as visitors from './visitors'
 import * as testdrives from './testdrives'
 import type {CarInput} from './cars'
 import * as cars from './cars'
+import * as queues from './queues'
 
 export const schema = graphql.buildSchema(`
 
@@ -22,6 +23,22 @@ export const schema = graphql.buildSchema(`
     name: String!
     mobile: String!
     type: VisitorType!
+  }
+  input VisitorUpdate {
+    mobile:String
+    name:String
+    type:VisitorType
+    email: String
+    cpr: String
+    forenames: String
+    lastname: String
+    street: String
+    houseNumber: String
+    floor: String
+    apartment: String
+    postcode: String
+    city: String
+    country: String
   }
 
   type Dealership {
@@ -50,7 +67,7 @@ export const schema = graphql.buildSchema(`
     date: String
     visitor: Visitor
     car: Car
-    signature: String
+    driversLicense: String
   }
 
   type Car {
@@ -218,9 +235,12 @@ export const schema = graphql.buildSchema(`
     dequeue(visitorId:ID!): Visitor
     enqueue(queue: String!, visitor:VisitorInput!): Visitor,
     updateVisitorStatus(visitorId:ID!, status: VisitorStatus!): Visitor
+    createQueue(name:String!, description:String!, order: String!): Queue
     createCar(car:CarInput!): Car
     updateCar(id:ID!, car:CarInput!):Car
     deleteCar(id:ID!): Boolean
+    updateVisitor(id: ID!, visitorUpdate:VisitorUpdate):Visitor
+    createTestdrive(visitor:ID!, car: ID!, driversLicense: String!): Testdrive
   }
 `)
 
@@ -241,6 +261,22 @@ type UpdateVisitorStatus = {
   status: VisitorStatus
 };
 
+type QueueInput = {
+  name:string,
+  description: string,
+  order: string
+}
+
+type UpdateVisitor = {
+  id:string,
+  visitorUpdate: VisitorUpdate
+}
+type CreateTestdrive = {
+  visitor: string,
+  car: string,
+  driversLicense: string
+}
+
 export const root = {
   session:({token}:Session, req:$Request) => sessions.get(token || req.get('Authorization')),
   public: {
@@ -250,9 +286,12 @@ export const root = {
   dequeue: ({visitorId}:Dequeue, req:$Request) =>  sessions.get(req.get('Authorization')).then(visitors.dequeue(visitorId)),
   enqueue: ({visitor, queue}:Enqueue, req:$Request) =>  sessions.get(req.get('Authorization')).then(visitors.enqueue(queue, visitor)),
   updateVisitorStatus: ({visitorId, status}:UpdateVisitorStatus, req:$Request) => sessions.get(req.get('Authorization')).then(visitors.updateStatus(visitorId, status)),
+  updateVisitor: ({id, visitorUpdate}:UpdateVisitor, req:$Request) => sessions.get(req.get('Authorization')).then(visitors.update(id, visitorUpdate)),
+  createQueue: ({name, description, order}: QueueInput, req:$Request) => sessions.get(req.get('Authorization')).then(queues.create(name, description, order)),
   createCar: ({car}: {car:CarInput}, req:$Request) => sessions.get(req.get('Authorization')).then(cars.create(car)),
   updateCar: ({id, car}: {id:string, car:CarInput}, req:$Request) => sessions.get(req.get('Authorization')).then(cars.update(id, car)),
   deleteCar: ({id}: {id:string}, req:$Request) => sessions.get(req.get('Authorization')).then(cars.del(id)),
+  createTestdrive: ({car, visitor, driversLicense}:CreateTestdrive, req:$Request) => sessions.get(req.get('Authorization')).then(testdrives.create(car, visitor, driversLicense))
 
 }
 

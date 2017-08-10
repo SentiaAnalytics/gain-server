@@ -25,14 +25,13 @@ const toDealership = async (_dealership:*):Promise<Dealership> => {
   assert(_dealership, 'Invalid dealership')
   assert(_dealership.id, 'Invalid dealership')
   assert(_dealership.name, 'Invalid dealership')
-  assert(_dealership.testdrives, 'Invalid dealership')
   return {
     id: _dealership.id,
     name: _dealership.name,
     testdrives: () => testdrives.getAll(_dealership.id),
     queues: () => queues.getAll(_dealership.id),
     queue: ({id}) => queues.get(id)
-      .then(q => q._dealership === _dealership.id ? q : Promise.reject(new Error('Could not fin queue'))),
+      .then(q => q._dealership === _dealership.id ? q : Promise.reject(new Error('Could not find queue'))),
     visitors: () => visitors.getByDealership(_dealership.id),
     visitor: ({id}) => visitors.get(id)
       .then((visitor:Visitor) => visitor._dealership === _dealership.id ? visitor : null),

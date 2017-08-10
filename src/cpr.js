@@ -40,7 +40,11 @@ const client = sentiaPNR({
   host: config.pnr.host
 })
 
-export default (cprNumber:string):Promise<CPRResult> =>
-  client(cprNumber)
-    .then(x => x.body['001'])
-    .catch(x => Promise.reject(new Error(x)))
+export default async (cprNumber:string):Promise<CPRResult> => {
+  try {
+    const result = await client(cprNumber)
+    return result.body['001']
+  } catch (e) {
+    return Promise.reject(new Error(e.errorDetails))
+  }
+}

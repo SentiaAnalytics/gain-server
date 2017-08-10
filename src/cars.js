@@ -23,8 +23,10 @@ export type Car = {
   disabled: bool,
   licenseplate:string,
   dealership: () => Promise<Dealership>,
+  _dealership: string,
   time_created: string,
-  created_by: () => Promise<User>
+  created_by: () => Promise<User>,
+  _created_by: string
 }
 
 const carQuery = (id:string, dealership:string) => r.table('cars').getAll(id).filter({dealership}).nth(0)
@@ -38,7 +40,9 @@ export const toCar = (_car:*):Car => {
     licenseplate: _car.licenseplate,
     time_created: _car.time_created,
     dealership: () => dealerships.get(_car.dealership),
-    created_by: () => users.get(_car.created_by)
+    _dealership: _car.dealership,
+    created_by: () => users.get(_car.created_by),
+    _created_by: _car.created_by
   }
 }
 
@@ -51,6 +55,11 @@ export const create = (carInput: CarInput) => async (session:Session) => {
     created_by: session._user
   }
   await db.run(r.table('cars').insert(car))
+  return toCar(car)
+}
+
+export const get = async (id:string): Promise<Car> => {
+  const car = await db.run(r.table('cars').get(id))
   return toCar(car)
 }
 

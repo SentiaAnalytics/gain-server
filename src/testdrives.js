@@ -3,113 +3,44 @@ import r from 'rethinkdb'
 import * as db from './rethinkdb'
 import type {Dealership} from './dealerships'
 import type {User} from './users'
+import type {Visitor} from './visitors'
+import * as visitors from './visitors'
+import type {Car} from './cars'
+import * as cars from './cars'
 import assert from 'assert'
 import * as users from './users'
 import * as dealerships from './dealerships'
-
-
-export type Car = {
-  brand: string,
-  model: string,
-  licenseplate: string,
-}
-
-export type Driver = {
-  cpr: string,
-  email: string,
-  mobile: string,
-  licenseUrl: string,
-  forenames: string,
-  lastname: string,
-  street: string,
-  houseNumber: string,
-  floor: string,
-  apartment: string,
-  postcode: string,
-  city: string,
-  country: string
-}
+import * as util from './util'
 
 export type Testdrive = {
   id: string,
-  user: () => Promise<User>,
+  crated_by: () => Promise<User>,
+  _crated_by: string,
   dealership: () => Promise<Dealership>,
-  date: string,
-  driver: Driver,
-  car: Car,
-  signature: string,
+  _dealership: string,
+  time_created: string,
+  visitor: () => Promise<Visitor>,
+  _visitor: string,
+  car: () => Promise<Car>,
+  _car: string,
+  driversLicense: string
 }
-
-export type TestdriveInput = {
-  id: string,
-  user:string,
-  dealership: string,
-  date: string,
-  driver: Driver,
-  car: Car,
-  signature: string,
-}
-
-
-const toCar = async (_car:*):Promise<Car> => {
-  assert(_car, 'Invalid property Car')
-  assert(_car.brand, 'Invalid property Car.brand')
-  assert(_car.model, 'Invalid property Car.model')
-  assert(_car.licenseplate, 'Invalid property Car.licenseplate')
-  return {
-    brand: _car.brand,
-    model: _car.model,
-    licenseplate: _car.licenseplate
-  }
-}
-
-const toDriver = async (_driver:*):Promise<Driver> => {
-  assert(_driver, 'Invalid property Driver')
-  assert(_driver.email, 'Invalid Property Driver.email')
-  assert(_driver.mobile, 'Invalid Property Driver.mobile')
-  assert(_driver.cpr, 'Invalid Property Driver.cpr')
-  assert(_driver.forenames, 'Invalid Property Driver.forenames')
-  assert(_driver.lastname, 'Invalid Property Driver.lastname')
-  assert(_driver.street, 'Invalid Property Driver.street')
-  assert(_driver.postcode, 'Invalid Property Driver.postcode')
-  assert(_driver.country, 'Invalid Property Driver.country')
-
-  return {
-    email: _driver.email,
-    mobile: _driver.mobile,
-    cpr: _driver.cpr,
-    licenseUrl: _driver.licenseUrl,
-    forenames: _driver.forenames,
-    lastname: _driver.lastname,
-    street: _driver.street,
-    houseNumber: _driver.houseNumber,
-    floor: _driver.floor,
-    apartment: _driver.apartment,
-    postcode: _driver.postcode,
-    city: _driver.city,
-    country: _driver.country,
-  }
-}
-
 
 const toTestdrive = async (_testdrive:*):Promise<Testdrive> => {
   assert(_testdrive, 'Could not find Testdrive')
-  assert(_testdrive.id, 'Invalid Testdrive')
-  assert(_testdrive.user, 'Invalid Testdrive')
-  assert(_testdrive.date, 'Invalid Testdrive')
-  assert(_testdrive.dealership, 'Invalid Testdrive')
-  assert(_testdrive.signature, 'Invalid Testdrive')
 
-  const driver = await toDriver(_testdrive.driver)
-  const car = await toCar(_testdrive.car)
   return {
     id: _testdrive.id,
-    date: _testdrive.date,
-    user: () => users.get(_testdrive.user),
+    time_created: _testdrive.time_created,
+    created_by: () => users.get(_testdrive.created_by),
+    _created_by:_testdrive.created_by,
     dealership: () => dealerships.get(_testdrive.dealership),
-    car,
-    driver,
-    signature: _testdrive.signature
+    _dealership: _testdrive.dealership,
+    car: () => cars.get(_testdrive.car),
+    _car: _testdrive.car,
+    visitor: () => visitors.get(_testdrive.visitor),
+    _visitor: _testdrive.visitor,
+    driversLicense: _testdrive.driversLicense
   }
 }
 
@@ -117,7 +48,25 @@ export const getAll = (dealership:string):Promise<Testdrive[]> =>
   db.toArray(r.table('testdrives').getAll(dealership, {index:'dealership'}))
     .then(xs => Promise.all(xs.map(toTestdrive)))
 
-export const create = (testdrive:TestdriveInput):Promise<Testdrive> => {
+export const create = (car:string, visitor:string, driversLicense:string) => async (session:Session):Promise<Testdrive> => {
+  const _car = await cars.get(car)
+  console.log(_car)
+  if (_car._dealership !== session._dealership) throw new Error('Car does not exist')
+  if (_car.disabled) throw new Error('Car is disabled')
+
+  const _visitor = await visitors.get(visitor)
+  console.log(_visitor)
+  if (_visitor._dealership !== session._dealership) throw new Error('Visitor does not exist')
+
+  const testdrive = {
+    id: util.uuid(),
+    car,
+    visitor,
+    driversLicense,
+    dealership: session._dealership,
+    created_by: session._user,
+    time_created: util.getTimestamp()
+  }
   return db.run(r.table('testdrives').insert(testdrive))
     .then(() => toTestdrive(testdrive))
 }

@@ -26,10 +26,8 @@ export type Session = {
   user: () => Promise<User>,
   _dealership: string,
   dealership: () => Promise<Dealership>,
-  createTestdrive: (props:{testdriveInput:TestdriveInput}) => Promise<Testdrive>,
   cprLookup: (props:{cpr:string}) => Promise<CPRResult>,
   mysql: (props: {query:string}) => Promise<MySQLResult<string>>,
-  createQueue: (props: {name:string, description:string, order:string}) => Promise<Queue>,
   queues: () => Promise<Queue[]>,
   queue: (props: {id:string}) => Promise<Queue>
 }
@@ -41,18 +39,9 @@ const toSession = (token:string, {_user, _dealership}: Token):Session =>
   user: () => users.get(_user),
   _dealership,
   dealership: () => dealerships.get(_dealership),
-  createTestdrive: ({testdriveInput}) =>
-    testdrives.create({
-      ...testdriveInput,
-      id: uuid(),
-      user: _user,
-      dealership: _dealership,
-      date: util.getTimestamp()
-    }),
   cprLookup: ({cpr}) => cprLookup(cpr),
   mysql:({query}) => mysql(query)
     .then(({data, fields}) => ({data: JSON.stringify(data), fields})),
-  createQueue: ({name, description, order}) => queues.create(name, description, order, _dealership),
   queues: () => queues.getAll(_dealership),
   queue: ({id}) => queues.get(id)
     .then(q => q._dealership === _dealership ? q : Promise.reject(new Error('Could not fin queue')))
