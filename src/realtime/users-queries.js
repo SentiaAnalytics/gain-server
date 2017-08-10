@@ -50,18 +50,29 @@ export const fetchDealershipQueues = (token: string):Promise => {
           currentVisitors {
             id,
             name,
-            mobile,
-            type,
             time_queued,
             time_served,
             served_by {
               id,
               email,
               forenames,
-              lastname
-
+              lastname,
             },
+            mobile,
             status,
+            type,
+            cpr,
+            email,
+            street,
+            forenames,
+            lastname,
+            street,
+            houseNumber,
+            floor,
+            apartment,
+            postcode,
+            city,
+            country
           }
         }
       }
