@@ -13,6 +13,8 @@ import graphql from './graphql'
 import http from 'http'
 import { setupSockets } from './realtime'
 
+process.on('unhandledRejection', r => console.log(r))
+
 const pnr = sentiaPnr(config.pnr)
 
 const PORT = process.env.PORT || 8080
