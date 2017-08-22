@@ -1,7 +1,9 @@
 import util from 'util'
+import { rethinkConnection } from './rethinkdb'
+
 const subscribers = new Map()
 
-const logSubscriptions = () => {
+export const logSubscriptions = () => {
     for (let subscriber of subscribers.keys()) {
         console.log(`Serving ${subscriber} with:`)
         for (let subscription of subscribers.get(subscriber).subscriptions.keys()) {
@@ -10,10 +12,12 @@ const logSubscriptions = () => {
     }
 }
 
-export const subscribe = (id, subscriberObj, subscriptionId, connection, changefeed, what) => {
-    if (!subscribers.has(id)) {
-        console.log(`Creating new subscriber ${id}`)
-        subscribers.set(id, {
+export const subscribe = async (socket, subscriberObj, subscriptionId, changefeed, what) => {
+    const connection = await rethinkConnection()
+    
+    if (!subscribers.has(socket.id)) {
+        console.log(`Creating new subscriber ${subscriberObj.id} for ${socket.id}`)
+        subscribers.set(socket.id, {
             subscriber: subscriberObj,
             subscriptions: new Map()
         })
@@ -26,21 +30,30 @@ export const subscribe = (id, subscriberObj, subscriptionId, connection, changef
                 throw error
             }
 
-            if (subscribers.get(id).subscriptions.has(subscriptionId)) {
-                throw `There is already a subscription named ${subscriptionId} for ${id}` 
+            if (subscribers.get(socket.id).subscriptions.has(subscriptionId)) {
+                throw `There is already a subscription named ${subscriptionId} for ${socket.id}` 
             }
 
-            subscribers.get(id).subscriptions.set(subscriptionId, {
-                    connection,
-                    cursor,
-                    timer: setInterval(what, 2000)
-                }
-            )
+            const subscriptionData = {
+                connection, 
+                cursor, 
+                shuttingDown: false
+            }
 
-            console.log(`Created subscription ${subscriptionId} on ${id}`)
+            subscribers.get(socket.id).subscriptions.set(subscriptionId, subscriptionData)
+
+            connection.once('close', () => {
+                if (!subscriptionData.shuttingDown) {
+                    console.log(`RethinkDB connection was unintentionally closed in ${subscriptionId} for ${socket.id}`)
+                    unsubscribe(socket, subscriptionId)
+                    subscribe(socket, subscriberObj, subscriptionId, changefeed, what)    
+                }
+            })
+
+            console.log(`Created subscription ${subscriptionId} for ${socket.id}`)
 
             cursor.each((data) => {
-                console.log(`Update in ${subscriptionId} for ${id}`)
+                console.log(`Update in ${subscriptionId} for ${socket.id}`)
                 what(data)
             })
         }
@@ -49,34 +62,31 @@ export const subscribe = (id, subscriberObj, subscriptionId, connection, changef
     what()
 }
 
+const unsubscribe = (socket, subscriptionId) => {
+    console.log(`Unsubscribing ${subscriptionId} for ${socket.id}`)
+    const subscription = subscribers.get(socket.id).subscriptions.get(subscriptionId)
+    
+    subscription.cursor.close()
+    subscription.connection.close()        
+    subscribers.get(socket.id).subscriptions.delete(subscriptionId)
 
-export const unsubscribeAll = (socket) => {
+    if (subscribers.get(socket.id).subscriptions.size == 0) {
+        console.log(`Removed final subscription for ${socket.id}`)
+        subscribers.delete(socket.id)
+    }
+}
+
+const markForShutDownAndUnsubscribe = (socket, subscriptionId) => {
+    subscribers.get(socket.id).subscriptions.get(subscriptionId).shuttingDown = true
+    unsubscribe(socket, subscriptionId)
+}
+
+const unsubscribeAll = (socket) => {
     if (subscribers.has(socket.id)) {
         for (let subscriptionId of subscribers.get(socket.id).subscriptions.keys()) {
-            unsubscribeNoLog(socket, subscriptionId)
-        }
-    }
-    logSubscriptions()
-}
-
-const unsubscribeNoLog = (socket, subscriptionId) => {
-    if (subscribers.has(socket.id)) {
-        console.log(`Unsubscribing ${socket.id} from ${subscriptionId}`)
-        const subscription = subscribers.get(socket.id).subscriptions.get(subscriptionId)
-        
-        subscription.cursor.close()
-        subscription.connection.close()
-        clearInterval(subscription.timer)
-        
-        subscribers.get(socket.id).subscriptions.delete(subscriptionId)
-
-        if (subscribers.get(socket.id).subscriptions.size == 0) {
-            subscribers.delete(socket.id)
+            markForShutDownAndUnsubscribe(socket, subscriptionId)
         }
     }
 }
 
-const unsubscribe = (socket, subscriptionId) => {
-    unsubscribeNoLog(socket, subscriptionId)
-    logSubscriptions()
-}
+export { markForShutDownAndUnsubscribe as unsubscribe, unsubscribeAll }
