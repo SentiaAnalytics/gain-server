@@ -19,9 +19,7 @@ const getConnectionOptions = (url) => {
 
 const conf = getConnectionOptions(config.rethinkdb)
 
-const rethinkConnection = async () => {
-  console.log(`Establising connection to rethinkDB`)
-  
+const rethinkConnection = async () => {  
   const conOpts = getConnectionOptions(config.rethinkdb)
   return await r.connect(conOpts, (error, conn) => {
     if (error) {

@@ -1,5 +1,4 @@
 import SocketIO from 'socket.io'
-import { rethinkConnection } from './rethinkdb'
 import r from 'rethinkdb'
 import { subscribe, unsubscribeAll } from './subscriptions'
 import { fetchDealershipId, fetchDealershipQueues, fetchDealershipCars } from './users-queries'
@@ -7,13 +6,10 @@ import util from 'util'
 
 const users = new Map()
 
-const subscribeToQueues = async (user) => {
+const subscribeToQueues = (user) => {
   const { socket, token, dealershipId } = user
  
-  const connection = await rethinkConnection()
   const changefeed = r.table("visitors").filter({"dealership": dealershipId}).changes()
-
-  console.log(`Subscribing ${user.id} to visitor changes in dealership ${dealershipId}`)
 
   const what = (data) => {
     fetchDealershipQueues(token).then((result) => {
@@ -21,16 +17,13 @@ const subscribeToQueues = async (user) => {
     })
   }
 
-  subscribe(socket.id, user, 'QUEUES', connection, changefeed, what)
+  subscribe(socket, user, 'QUEUES', changefeed, what)
 }
 
-const subscribeToCars = async (user) => {
+const subscribeToCars = (user) => {
   const { socket, token, dealershipId } = user
- 
-  const connection = await rethinkConnection()
-  const changefeed = r.table("cars").filter({"dealership": dealershipId}).changes()
 
-  console.log(`Subscribing ${user.id} to car changes in dealership ${dealershipId}`)
+  const changefeed = r.table("cars").filter({"dealership": dealershipId}).changes()
 
   const what = (data) => {
     fetchDealershipCars(token).then((result) => {
@@ -38,7 +31,7 @@ const subscribeToCars = async (user) => {
     })
   }
 
-  subscribe(socket.id, user, 'CARS', connection, changefeed, what)
+  subscribe(socket, user, 'CARS', changefeed, what)
 }
 
 const setupUsersSocketServer = (server, path) => {
