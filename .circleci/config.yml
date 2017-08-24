@@ -1,0 +1,9 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/circulate
+    docker:
+      - image: node:8.4
+    steps:
+      - checkout
+      - run: npm i --prod
