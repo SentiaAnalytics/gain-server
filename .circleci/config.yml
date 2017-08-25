@@ -21,3 +21,5 @@ jobs:
           docker build -t   sentia/gain-server:$TAG .
           docker login -u $DOCKER_USER -p $DOCKER_PASS
           docker push sentia/gain-server:$TAG
+          docker tag sentia/gain-server:$TAG sentia/gain-server:latest
+          docker push sentia/gain-server:latest
