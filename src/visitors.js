@@ -66,7 +66,7 @@ export type Visitor = {
   country: string
 }
 
-type VisitorUpdate = {
+export type VisitorUpdate = {
   mobile:string,
   name:string,
   type:string,
