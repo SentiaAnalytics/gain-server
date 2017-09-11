@@ -174,7 +174,7 @@ export const enqueue = (queue:string, visitorInput:VisitorInput) => (session:Ses
   }
   return db.run(r.table('visitors').insert(visitor))
     .then(() => getPositionInQueue(visitor))
-    .then(pos => sms.send(visitor.mobile, `Thank you you are number ${pos} in the queue. Goto http://gain.ai:8091/#/visitor/${visitor.id} to see when your turn is up. as well as lots of interesting things about the dealership`))
+    .then(pos => sms.send(visitor.mobile, `Thank you you are number ${pos} in the queue. Goto https://gain.ai:8091/#/visitor/${visitor.id} to see when your turn is up. as well as lots of interesting things about the dealership`))
     .then(() => toVisitor(visitor))
 
 }
