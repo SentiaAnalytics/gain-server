@@ -226,6 +226,6 @@ type Mutation {
   updateCar(id:ID!, car:CarInput!):Car
   deleteCar(id:ID!): Boolean
   updateVisitor(id: ID!, visitorUpdate:VisitorUpdate):Visitor
-  createTestdrive(visitor:ID!, car: ID!, driversLicense: String!): Testdrive
+  createTestdrive(visitor:ID!, car: ID!): Testdrive
   test: String!
 }

@@ -67,7 +67,6 @@ export const root = {
   updateCar: ({id, car}: {id:string, car:CarInput}, req:$Request) => sessions.get(req.get('Authorization')).then(cars.update(id, car)),
   deleteCar: ({id}: {id:string}, req:$Request) => sessions.get(req.get('Authorization')).then(cars.del(id)),
   createTestdrive: ({car, visitor}:CreateTestdrive, req:$Request) => sessions.get(req.get('Authorization')).then(testdrives.create(car, visitor, req.body.data)),
-  test: (_, req:$Request) => console.log(req.raw)
 }
 
 // export default (req:$Request, res:$Response) => {
