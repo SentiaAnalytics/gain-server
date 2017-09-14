@@ -21,7 +21,7 @@ export type Queue = {
 }
 
 const toQueue = (_queue:Object):Promise<Queue> => {
-  if (!_queue) return Promise.reject(new Error('Missing Queue'))
+  if (!_queue) return Promise.reject(new Error('Could not find queue'))
 
   return Promise.resolve({
     id: _queue.id,

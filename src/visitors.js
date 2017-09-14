@@ -163,7 +163,9 @@ export const getPositionInQueue = async ({id, dealership, queue}: {id:string, de
     return findIndex(x => x.id === id, items) + 1
 }
 
-export const enqueue = (queue:string, visitorInput:VisitorInput) => (session:Session) => {
+export const enqueue = (queue:string, visitorInput:VisitorInput) => async (session:Session) => {
+  const q = await queues.get(queue)
+  if (q == null || q._dealership !== session._dealership) throw new Error('Could not find queue')
   const visitor = {
     id: uuid(),
     status: STATUS_WAITING,
