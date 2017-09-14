@@ -15,7 +15,6 @@
     "watch": "yarn run config && babel-watch src/server.js"
   },
   "dependencies": {
-    "apollo-client": "^1.9.1",
     "aws-sdk": "2.7.x",
     "babel-plugin-transform-react-jsx": "^6.23.0",
     "babel-polyfill": "^6.23.0",
@@ -34,7 +33,6 @@
     "flow-typed": "^2.1.2",
     "fs-extra": "^2.0.0",
     "graphql": "^0.10.1",
-    "graphql-tag": "^2.4.2",
     "jsonwebtoken": "^7.2.1",
     "multer": "^1.2.1",
     "mysql": "^2.13.0",
