@@ -133,6 +133,7 @@ type Queue {
 enum VisitorStatus {
   Waiting,
   Active,
+  OnTestdrive,
   Served,
   Missed
 }

@@ -26,14 +26,16 @@ export type VisitorInput = {
 
 export type VisitorStatus = 
   | "Waiting"
-  | "Served"
   | "Active"
+  | "OnTestdrive"
+  | "Served"
   | "Missed"
 
 
 const STATUS_WAITING:VisitorStatus = "Waiting"
 const STATUS_SERVED:VisitorStatus = "Served"
 const STATUS_ACTIVE:VisitorStatus = "Active"
+const STATUS_ON_TESTDRIVE:VisitorStatus = "OnTestdrive"
 const STATUS_MISSED:VisitorStatus = "Missed"
 
 export type Visitor = {
@@ -205,9 +207,13 @@ export const updateStatus = (id:string, status:VisitorStatus) => async (session:
 }
 
 export const update = (id:string, visitorUpdate:VisitorUpdate) => async (session:Session):Promise<Visitor> => {
+
   const visitorBefore = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
+
   if (visitorBefore.status !== 'Active') throw new Error(`Visitor must be ${STATUS_ACTIVE} but was ${visitorBefore.status}`)
+
   await db.run(r.table('visitors').get(id).update(visitorUpdate))
   const visitor = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
+  
   return toVisitor(visitor)
 }
