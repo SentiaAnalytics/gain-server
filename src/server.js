@@ -35,6 +35,7 @@ app.use((req, res, next) => {
 })
 
 app.use(cookieParser())
+app.use(bodyParser.json())
 
 app.use('/graphql', function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');

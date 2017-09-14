@@ -7,7 +7,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: npm i
+      - run: yarn install
       - run:
           name: Install Docker client
           command: |

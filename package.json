@@ -10,7 +10,7 @@
     "build": "babel -d build src",
     "build-with-source-maps": "babel src -d build --source-maps",
     "start": "node build/server.js",
-    "test": "tape -r babel-register 'src/**/*.test.js' | tap-spec",
+    "test": "tape -r babel-register 'test/**/*.js' | tap-spec",
     "dev": "yarn run config && yarn run build && yarn run start",
     "watch": "yarn run config && babel-watch src/server.js"
   },
@@ -36,7 +36,7 @@
     "jsonwebtoken": "^7.2.1",
     "multer": "^1.2.1",
     "mysql": "^2.13.0",
-    "node-fetch": "^1.7.0",
+    "node-fetch": "^1.7.2",
     "nodemailer": "^3.1.8",
     "oolon-rethink": "^6.1.1",
     "passport": "^0.3.2",
@@ -47,7 +47,7 @@
     "rethinkdb": "^2.3.3",
     "sentia-pnr": "^1.0.0",
     "socketio": "^1.0.0",
-    "tape": "^4.6.3",
+    "tape": "^4.8.0",
     "twilio": "^3.4.0",
     "uuid": "^3.0.1"
   },
