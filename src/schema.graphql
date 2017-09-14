@@ -213,6 +213,7 @@ type Public {
 }
 
 type Query {
+  version: String!,
   session(token: String):Session,
   public:Public,
   authenticate(email: String!, password: String!): Session
