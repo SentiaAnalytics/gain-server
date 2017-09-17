@@ -15,6 +15,7 @@
     "watch": "yarn run config && babel-watch src/server.js"
   },
   "dependencies": {
+    "apollo-server-express": "^1.1.2",
     "aws-sdk": "2.7.x",
     "babel-plugin-transform-react-jsx": "^6.23.0",
     "babel-polyfill": "^6.23.0",

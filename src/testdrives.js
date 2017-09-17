@@ -11,7 +11,8 @@ import assert from 'assert'
 import * as users from './users'
 import * as dealerships from './dealerships'
 import * as util from './util'
-
+import type {DriverLicense} from './driverslicense'
+import * as driverslicenses from './driverslicense'
 export type Testdrive = {
   id: string,
   crated_by: () => Promise<User>,
@@ -23,7 +24,8 @@ export type Testdrive = {
   _visitor: string,
   car: () => Promise<Car>,
   _car: string,
-  driversLicense: string
+  driversLicense: Promise<DriversLicense>
+
 }
 
 const toTestdrive = async (_testdrive:*):Promise<Testdrive> => {
@@ -40,7 +42,8 @@ const toTestdrive = async (_testdrive:*):Promise<Testdrive> => {
     _car: _testdrive.car,
     visitor: () => visitors.get(_testdrive.visitor),
     _visitor: _testdrive.visitor,
-    driversLicense: _testdrive.driversLicense
+    _driversLicense: _testdrive.driversLicense,
+    driversLicense: () => testdrives.get(_testdrive.driversLicense)
   }
 }
 
@@ -50,14 +53,12 @@ export const getAll = (dealership:string):Promise<Testdrive[]> =>
 
 export const create = (car:string, visitor:string, driversLicense:string) => async (session:Session):Promise<Testdrive> => {
   const _car = await cars.get(car)
-  console.log(_car)
   if (_car._dealership !== session._dealership) throw new Error('Car does not exist')
   if (_car.disabled) throw new Error('Car is disabled')
 
   const _visitor = await visitors.get(visitor)
-  console.log(_visitor)
   if (_visitor._dealership !== session._dealership) throw new Error('Visitor does not exist')
-
+  console.log('driversLicense', driversLicense)
   const testdrive = {
     id: util.uuid(),
     car,

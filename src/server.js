@@ -1,5 +1,6 @@
 //@flow weak
 import 'babel-polyfill'
+import {graphiqlConnect} from 'apollo-server-express'
 import express from 'express'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
@@ -12,6 +13,8 @@ import sentiaPnr from 'sentia-pnr'
 import graphql from './graphql'
 import http from 'http'
 import { setupSockets } from './realtime'
+import * as driversLicense from './driverslicense'
+import * as sessions from './sessions'
 
 process.on('unhandledRejection', r => console.log(r))
 
@@ -36,7 +39,6 @@ app.use((req, res, next) => {
 
 app.use(cookieParser())
 app.use(bodyParser.json())
-
 app.use('/graphql', function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
@@ -47,7 +49,8 @@ app.use('/graphql', function (req, res, next) {
   }
 });
 
-app.use('/graphql', graphql);
+app.post('/graphql', graphql);
+app.get('/graphql', graphiqlConnect({endpointURL: '/graphql'}));
 app.get('/health', (req, res) => res.send('ok'))
 
 app.use((err, req, res, next) => {
