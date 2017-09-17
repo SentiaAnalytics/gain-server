@@ -45,15 +45,20 @@ type User {
   lastname: String
   dealership: Dealership
 }
+type DriversLicense {
+  id: ID!
+  dealership: Dealership!
+  base64:String!
+}
 
 type Testdrive {
-  id: ID
-  user: User
-  dealership: Dealership
-  date: String
-  visitor: Visitor
+  id: ID!
+  user: User!
+  dealership: Dealership!
+  date: String!
+  visitor: Visitor!
   car: Car
-  driversLicense: String
+  driversLicense: DriversLicense
 }
 
 type Car {

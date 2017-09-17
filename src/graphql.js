@@ -1,5 +1,5 @@
 //@flow
-import  graphqlHTTP from 'express-graphql'
+import  {graphqlConnect} from 'apollo-server-express'
 import fs from 'fs'
 import path from 'path'
 import * as graphql from 'graphql'
@@ -70,14 +70,20 @@ export const root = {
   createTestdrive: ({car, visitor}:CreateTestdrive, req:$Request) => sessions.get(req.get('Authorization')).then(testdrives.create(car, visitor, req.body.data)),
 }
 
+export default graphqlConnect({ 
+  schema,
+  rootValue: root
+})
 // export default (req:$Request, res:$Response) => {
 //   const {query, variables}
 //   graphql.graphql(schema, req.body.query, root)
 // }
-export default graphqlHTTP({
-  schema: schema,
-  rootValue: root,
-  graphiql: true,
-})
+// export default graphqlHTTP({
+//   schema: schema,
+//   rootValue: root,
+//   graphiql: true,
+// })
+
+
 
 
