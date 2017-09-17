@@ -54,13 +54,6 @@ const testHandler = req => {
 
 export const root = {
   version: require('../package.json').version,
-  test: (obj, arg, context, info) => {
-    console.log(obj)
-    console.log(arg)
-    console.log(context)
-    console.log(info)
-    return "Sup"
-  },
   session:({token}:Session, req:$Request) => sessions.get(token || req.get('Authorization')),
   public: {
     visitor: ({id}: {id:string}) => visitors.get(id).then(v => v)
