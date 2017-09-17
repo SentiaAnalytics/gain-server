@@ -217,8 +217,10 @@ type Public {
   visitor(id: String!): PublicVisitor
 }
 
+
 type Query {
   version: String!,
+  test(input:String): String,
   session(token: String):Session,
   public:Public,
   authenticate(email: String!, password: String!): Session

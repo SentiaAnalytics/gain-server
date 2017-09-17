@@ -54,6 +54,13 @@ const testHandler = req => {
 
 export const root = {
   version: require('../package.json').version,
+  test: (obj, arg, context, info) => {
+    console.log(obj)
+    console.log(arg)
+    console.log(context)
+    console.log(info)
+    return "Sup"
+  },
   session:({token}:Session, req:$Request) => sessions.get(token || req.get('Authorization')),
   public: {
     visitor: ({id}: {id:string}) => visitors.get(id).then(v => v)
@@ -70,10 +77,14 @@ export const root = {
   createTestdrive: ({car, visitor}:CreateTestdrive, req:$Request) => sessions.get(req.get('Authorization')).then(testdrives.create(car, visitor, req.body.data)),
 }
 
-export default graphqlConnect({ 
-  schema,
-  rootValue: root
+export default graphqlConnect(req => { 
+  return {
+    schema,
+    context: req,
+    rootValue: root
+  }
 })
+
 // export default (req:$Request, res:$Response) => {
 //   const {query, variables}
 //   graphql.graphql(schema, req.body.query, root)
