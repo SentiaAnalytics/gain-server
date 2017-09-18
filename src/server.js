@@ -38,6 +38,7 @@ app.use((req, res, next) => {
 
 app.use(cookieParser())
 app.use(bodyParser.json())
+app.post('/license-upload', driversLicense.upload);
 app.use('/graphql', function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
