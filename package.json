@@ -1,6 +1,10 @@
 {
   "name": "testdrive-server",
+<<<<<<< HEAD
   "version": "4.2.1",
+=======
+  "version": "4.3.0",
+>>>>>>> c839fc88bdd5b41492a64a76189002275c6b893f
   "main": "index.js",
   "repository": "git@github.com:SentiaAnalytics/testdrive-server.git",
   "author": "Andreas Møller <andreas.moller@gmail.com>",
