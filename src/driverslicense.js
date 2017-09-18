@@ -20,6 +20,7 @@ export const toLicense = (_license:*):DriverLicense => ({
   base64: _license.license
 })
 
+
 export const create = (license:string) => async (session:Session) => {
   let item = {
     id: uuid(),
@@ -34,4 +35,17 @@ export const create = (license:string) => async (session:Session) => {
 export const get = async (id:string) => {
   let _license  = await db.run(r.table('driversLicenses').get(id))
   return toLicense(_license)
+}
+
+export const upload = (req, res) => {
+  const {license} = req.body
+  session.get(req.get('Authorization'))
+    .then(create(license))
+    .then(
+      license => res.send(license.id),
+      err => {
+        console.log(err.stack || err)
+        res.status(500).send('Internal Server Error')
+      }
+    )
 }
