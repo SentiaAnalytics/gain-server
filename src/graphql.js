@@ -70,13 +70,29 @@ export const root = {
   createTestdrive: ({car, visitor}:CreateTestdrive, req:$Request) => sessions.get(req.get('Authorization')).then(testdrives.create(car, visitor, req.body.data)),
 }
 
-export default graphqlConnect(req => { 
-  return {
-    schema,
-    context: req,
-    rootValue: root
-  }
-})
+// export default graphqlConnect(req => { 
+//   return {
+//     schema,
+//     context: req,
+//     rootValue: root
+//   }
+// })
+
+const resolveRequest = async (req) => {
+  const {query, variables, data, operationName} = req.body 
+  return graphql.graphql(schema, query, root,  req, variables, operationName)
+}
+
+export default (req:$Request, res) => {
+  resolveRequest(req)
+    .then(
+      x => res.send(x),
+      err => {
+        console.log(err.stack || err);
+        res.status(500).send('Internal Server Error');
+      }
+    )
+}
 
 // export default (req:$Request, res:$Response) => {
 //   const {query, variables}
