@@ -10,6 +10,7 @@ input VisitorInput {
   mobile: String!
   type: VisitorType!
 }
+
 input VisitorUpdate {
   mobile:String
   name:String

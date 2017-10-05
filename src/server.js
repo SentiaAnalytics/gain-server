@@ -14,6 +14,7 @@ import http from 'http'
 import { setupSockets } from './realtime'
 import * as driversLicense from './driverslicense'
 import * as sessions from './sessions'
+import {express as voyager} from 'graphql-voyager/middleware';
 
 process.on('unhandledRejection', r => console.log(r))
 
@@ -47,7 +48,7 @@ app.use('/graphql', function (req, res, next) {
     next();
   }
 });
-
+app.use('/voyager', voyager({ endpointUrl: '/graphql' }));
 app.post('/graphql', graphql);
 app.get('/graphql', graphiqlConnect({endpointURL: '/graphql'}));
 app.get('/health', (req, res) => res.send('ok'))
