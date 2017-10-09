@@ -46,11 +46,6 @@ type User {
   lastname: String
   dealership: Dealership
 }
-type DriversLicense {
-  id: ID!
-  dealership: Dealership!
-  base64:String!
-}
 
 type Testdrive {
   id: ID!
@@ -58,8 +53,9 @@ type Testdrive {
   dealership: Dealership!
   date: String!
   visitor: Visitor!
-  car: Car
-  driversLicense: DriversLicense
+  car: Car!
+  signature: String!
+  driversLicense: String!
 }
 
 type Car {
@@ -234,6 +230,6 @@ type Mutation {
   updateCar(id:ID!, car:CarInput!):Car
   deleteCar(id:ID!): Boolean
   updateVisitor(id: ID!, visitorUpdate:VisitorUpdate):Visitor
-  createTestdrive(visitor:ID!, car: ID!): Testdrive
+  createTestdrive(visitor:ID!, car: ID!, signature: String!): Testdrive
   test: String!
 }
