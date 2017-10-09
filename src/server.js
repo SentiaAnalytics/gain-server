@@ -12,7 +12,6 @@ import sentiaPnr from 'sentia-pnr'
 import graphql from './graphql'
 import http from 'http'
 import { setupSockets } from './realtime'
-import * as driversLicense from './driverslicense'
 import * as sessions from './sessions'
 import {express as voyager} from 'graphql-voyager/middleware';
 
