@@ -71,7 +71,6 @@ export const root = {
 }
 
 export default graphqlConnect(req => { 
-
   return {
     schema,
     context: req,

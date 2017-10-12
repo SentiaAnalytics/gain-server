@@ -143,9 +143,15 @@ export const getAll = (queue:string):Promise<Visitor[]> =>
   db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).orderBy('time_queued'))
     .then(qs => Promise.all(qs.map(toVisitor)))
 
-export const getCurrent = (queue:string):Promise<Visitor[]> =>
-  db.toArray(r.table('visitors').getAll(queue, {index:'queue'}).filter(r.row('status').eq(STATUS_ACTIVE).or(r.row('status').eq(STATUS_WAITING))).orderBy('time_queued'))
+
+export const getCurrent = (queue:string):Promise<Visitor[]> => {
+  let query = r.table('visitors')
+    .getAll(queue, {index:'queue'})
+    .filter(row => r([STATUS_ACTIVE, STATUS_WAITING, STATUS_ON_TESTDRIVE]).contains(status => row("status").eq(status)))
+
+  return db.toArray(query)
     .then(qs => Promise.all(qs.map(toVisitor)))
+}
 
 export const getByDealership = (dealership: string):Promise<Visitor[]> =>
   db.toArray(r.table('visitors').getAll(dealership, {index: 'dealership'}).orderBy('time_queued'))
