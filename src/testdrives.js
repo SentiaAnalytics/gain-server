@@ -82,7 +82,7 @@ export const create = (car:string, visitor:string, signature: string, driversLic
     Du kan finde din køreseddel her: https://gain.ai:8090/testdrives/${token}
     God fornøjelse!
   `
-  await sms.send(_visitor.email, smsBody)
+  await sms.send(_visitor.mobile, smsBody)
 
   return toTestdrive(testdrive)
 }
