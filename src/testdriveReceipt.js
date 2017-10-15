@@ -59,7 +59,7 @@ const fetchTestdriveData = async (testdrive, authToken) => {
     }
   `
 
-  const res = await fetch("http://localhost:8090/graphql", {
+  const res = await fetch("https://gain.ai:8090/graphql", {
     method: "POST",
     headers: {"Authorization": authToken, "Content-Type": "application/json"},
     body: JSON.stringify({query, variables: {testdrive}, operationName: "TestdriveReport"})
