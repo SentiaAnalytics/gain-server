@@ -17,6 +17,9 @@ import * as users from './users'
 import type {Queue} from './queues'
 import * as queues from './queues'
 
+import type {TestDrive} from './testdrives'
+import * as testdrives from './testdrives'
+
 
 export type VisitorInput = {
   mobile:string,
@@ -50,6 +53,7 @@ export type Visitor = {
   position: () => Promise<number>,
   visits: () => Promise<Visitor[]>,
   status: string,
+  testDrive: Testdrive,
   time_queued: string,
   time_served: string,
   time_done: string,
@@ -107,6 +111,7 @@ export const toVisitor = (_visitor:Object):Promise<Visitor> => {
     position: () => getPositionInQueue(_visitor),
     visits: () => getByMobile(_visitor.mobile),
     status: _visitor.status,
+    testDrive: () => testdrives.getByVisitorId(_visitor.id),
     time_served: _visitor.time_served,
     time_done: _visitor.time_done,
     served_by: () => _visitor.served_by ? users.get(_visitor.served_by) : null,
@@ -231,4 +236,24 @@ export const update = (id:string, visitorUpdate:VisitorUpdate) => async (session
   const visitor = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
   
   return toVisitor(visitor)
+}
+
+export const finishTestDrive = (id:string) => async (session:Session):Promise<Visitor> => {
+  const testdrive = await testdrives.getByVisitorId(id)
+  const testdrive_update = {
+    timeFinished: util.getTimestamp()
+  };
+    
+  await db.run(r.table('testdrives').get(testdrive.id).update(testdrive_update))
+  
+  const visitor = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
+  if (visitor.status !== STATUS_ON_TESTDRIVE) return Promise.reject(new Error('Visitor must have status on testdrive'))
+  const visitor_update = {
+    status: STATUS_ACTIVE,
+    time_served: util.getTimestamp(),
+    served_by: session._user
+  }
+
+  await db.run(r.table('visitors').get(id).update(visitor_update))
+  return get(id)
 }

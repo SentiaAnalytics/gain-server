@@ -22,15 +22,14 @@ export type Testdrive = {
   _crated_by: string,
   dealership: () => Promise<Dealership>,
   _dealership: string,
-  time_created: string,
+  timeCreated: string,
+  timeFinished: string,
   visitor: () => Promise<Visitor>,
   _visitor: string,
   car: () => Promise<Car>,
   _car: string,
   signature: string,
   driversLicense: string
-  
-
 }
 
 const toTestdrive = async (_testdrive:*):Promise<Testdrive> => {
@@ -38,7 +37,8 @@ const toTestdrive = async (_testdrive:*):Promise<Testdrive> => {
 
   return {
     id: _testdrive.id,
-    time_created: _testdrive.time_created,
+    timeCreated: _testdrive.time_created,
+    timeFinished: _testdrive.timeFinished,
     created_by: () => users.get(_testdrive.created_by),
     _created_by:_testdrive.created_by,
     dealership: () => dealerships.get(_testdrive.dealership),
@@ -85,6 +85,15 @@ export const create = (car:string, visitor:string, signature: string, driversLic
   await sms.send(_visitor.mobile, smsBody)
 
   return toTestdrive(testdrive)
+}
+
+export const getByVisitorId = async (visitorId: string):Promise<Testdrive> => {
+  const testDriveIds = await db.toArray(r.table('testdrives').getAll(visitorId, {index: 'visitor'}).pluck(['id']))
+  if (testDriveIds.length > 0) {
+    return get(testDriveIds[0].id)
+  } else {
+    return Promise.resolve(null)
+  }
 }
 
 export const get = (id:string):Promise<Testdrive> =>

@@ -59,6 +59,8 @@ type Testdrive {
   created_by: User!
   dealership: Dealership!
   date: String!
+  timeCreated: String!
+  timeFinished: String
   visitor: Visitor!
   car: Car!
   signature: String!
@@ -191,7 +193,8 @@ type Visitor {
   queue: Queue!
   position: Int
   visits: [Visitor]!
-  status: VisitorStatus!,
+  status: VisitorStatus!
+  testDrive: Testdrive 
   time_queued: String!
   time_served: String
   time_done: String
@@ -238,5 +241,6 @@ type Mutation {
   deleteCar(id:ID!): Boolean
   updateVisitor(id: ID!, visitorUpdate:VisitorUpdate):Visitor
   createTestdrive(visitor:ID!, car: ID!, signature: String!): Testdrive
+  finishTestDrive(visitorId:ID!): Visitor
   test: String!
 }
