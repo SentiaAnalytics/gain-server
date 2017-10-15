@@ -61,7 +61,7 @@ const Field = ({name, value}) => {
   return (
     <div style={style.field}>
       <span style={style.label}>{name}</span>
-      <span style={style.value}>{`${value}`}</span>
+      <span style={style.value}>{value || ""}</span>
     </div>
   )
 }
@@ -170,6 +170,7 @@ export default ({testdrive}) => {
     <html>
       <head>
         <title>Køreseddel</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <style>{`
           @media (min-width: 800px) { 
             main {

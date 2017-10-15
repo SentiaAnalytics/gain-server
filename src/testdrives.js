@@ -54,7 +54,7 @@ const toTestdrive = async (_testdrive:*):Promise<Testdrive> => {
 }
 
 export const getAll = (dealership:string):Promise<Testdrive[]> =>
-  db.toArray(r.table('testdrives').getAll(dealership, {index:'dealership'}))
+  db.toArray(r.table('testdrives').getAll(dealership, {index:'dealership'}).without(['signature', 'driversLicense']))
     .then(xs => Promise.all(xs.map(toTestdrive)))
 
 export const create = (car:string, visitor:string, signature: string, driversLicense:string) => async (session:Session):Promise<Testdrive> => {
