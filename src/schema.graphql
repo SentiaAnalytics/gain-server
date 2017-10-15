@@ -36,7 +36,14 @@ type Dealership {
   queue(id:String):Queue
   visitors: [Visitor!]!
   visitor(id: ID!): Visitor
-  cars: [Car!]!
+  cars: [Car!]!,
+  testdrive(id: ID!): Testdrive
+  street: String
+  houseNumber: String
+  floor: String
+  postcode: String
+  city: String
+  country: String 
 }
 
 type User {
@@ -49,7 +56,7 @@ type User {
 
 type Testdrive {
   id: ID!
-  user: User!
+  created_by: User!
   dealership: Dealership!
   date: String!
   visitor: Visitor!

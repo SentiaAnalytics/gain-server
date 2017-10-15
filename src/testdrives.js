@@ -12,6 +12,9 @@ import * as users from './users'
 import * as dealerships from './dealerships'
 import * as util from './util'
 import type {Session} from './sessions'
+import config from './config';
+import jwt from 'jsonwebtoken';
+import * as sms from './sms'
 
 export type Testdrive = {
   id: string,
@@ -61,7 +64,6 @@ export const create = (car:string, visitor:string, signature: string, driversLic
 
   const _visitor = await visitors.get(visitor)
   if (_visitor._dealership !== session._dealership) throw new Error('Visitor does not exist')
-  console.log('driversLicense', driversLicense)
   const testdrive = {
     id: util.uuid(),
     car,
@@ -72,8 +74,17 @@ export const create = (car:string, visitor:string, signature: string, driversLic
     created_by: session._user,
     time_created: util.getTimestamp()
   }
-  return db.run(r.table('testdrives').insert(testdrive))
-    .then(() => toTestdrive(testdrive))
+  await db.run(r.table('testdrives').insert(testdrive))
+  const token = await jwt.sign({_testdrive: testdrive.id, _user: session._user, _dealership: session._dealership}, config.testdrive_report_jwt_secret, {})
+  console.log(token)
+  const smsBody = `
+    Tak fordi du prøver vores ${_car.brand} ${_car.model}.
+    Du kan finde din køreseddel her: https://gain.ai:8090/testdrives/${token}
+    God fornøjelse!
+  `
+  await sms.send(_visitor.email, smsBody)
+
+  return toTestdrive(testdrive)
 }
 
 export const get = (id:string):Promise<Testdrive> =>

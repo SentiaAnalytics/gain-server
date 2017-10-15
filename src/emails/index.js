@@ -8,8 +8,4 @@ const emailTransport = nodemailer.createTransport(config.emailTransport)
 const sendMail = x => emailTransport.sendMail(x)
 
 
-export const sendTestdriveConfirmation = testdrive => testdrivePDF =>
-  new Task((reject, resolve) =>
-    sendMail(emails.testdriveConfirmation(testdrive, testdrivePDF))
-      .then(resolve, reject)
-  )
+export const sendTestdriveConfirmation = (testdrive, token) => sendMail(emails.testdriveConfirmation(testdrive, token))

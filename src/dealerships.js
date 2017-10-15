@@ -15,10 +15,17 @@ import * as cars from './cars'
 export type Dealership = {
   name:string,
   id:string,
+  street: string,
+  houseNumber: string,
+  floor: string,
+  postcode: string,
+  city: string,
+  country: string,
   testdrives: () => Promise<Testdrive[]>,
   queues: () => Promise<Queue[]>,
   queue: (props: {id: string}) => Promise<Queue>,
-  cars: () => Promise<Car[]>
+  cars: () => Promise<Car[]>,
+  testdrive: (props: {id:string}) => Promise<Testdrive>,
 }
 
 const toDealership = async (_dealership:*):Promise<Dealership> => {
@@ -28,6 +35,12 @@ const toDealership = async (_dealership:*):Promise<Dealership> => {
   return {
     id: _dealership.id,
     name: _dealership.name,
+    street: _dealership.street,
+    houseNumber: _dealership.houseNumber,
+    floor: _dealership.floor,
+    postcode: _dealership.postcode,
+    city: _dealership.city,
+    country: _dealership.country,
     testdrives: () => testdrives.getAll(_dealership.id),
     queues: () => queues.getAll(_dealership.id),
     queue: ({id}) => queues.get(id)
@@ -35,7 +48,8 @@ const toDealership = async (_dealership:*):Promise<Dealership> => {
     visitors: () => visitors.getByDealership(_dealership.id),
     visitor: ({id}) => visitors.get(id)
       .then((visitor:Visitor) => visitor._dealership === _dealership.id ? visitor : null),
-    cars: () => cars.getByDealership(_dealership.id)
+    cars: () => cars.getByDealership(_dealership.id),
+    testdrive: ({id}) => testdrives.get(id)
   }
 }
 

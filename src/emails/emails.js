@@ -1,28 +1,20 @@
 //@flow weak
 import React from 'react'
 import D from 'date-fp'
-import {createElement as h} from 'react'
 import {renderToString} from 'react-dom/server'
 
-const TestdriveConfirmation = ({testdrive})=>
+const TestdriveConfirmation = ({testdrive}, token)=>
   <div>
-    <h1>Testdrive</h1>
+    <h1>Køreseddel</h1>
     <p>{D.format('DD/MM/YYYY', new Date(testdrive.date))}</p>
-    <p>{testdrive.firstname} {testdrive.lastname}</p>
-    <p>{testdrive.carBrand} {testdrive.carModel}</p>
+    <a href={`https://gain.ai:8080/testdrives/${token}`}>Se køreseddel</a>
   </div>
 
-export const testdriveConfirmation = (testdrive, testdrivePDF) =>
+export const testdriveConfirmation = (testdrive, token) =>
   ({
     from: 'noreply <noreply@gain.ai>',
     to: testdrive.email,
-    subject: 'Testdrive confirmation',
-    text: 'testdrive',
-    html: renderToString(<TestdriveConfirmation testdrive={testdrive}/>),
-    attachments: [
-      {
-        filename: 'testdrive.pdf',
-        content: testdrivePDF
-      }
-    ]
+    subject: 'Køreseddel',
+    text: `https://gain.ai:8080/testdrives/${token}`,
+    html: renderToString(<TestdriveConfirmation testdrive={testdrive} token={token}/>),
   })
