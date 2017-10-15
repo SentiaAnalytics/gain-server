@@ -1,5 +1,6 @@
 //@flow
 import  {graphqlConnect} from 'apollo-server-express'
+import config from './config'
 import fs from 'fs'
 import path from 'path'
 import * as graphql from 'graphql'
@@ -11,6 +12,7 @@ import * as testdrives from './testdrives'
 import type {CarInput} from './cars'
 import * as cars from './cars'
 import * as queues from './queues'
+
 
 const gqlSchema = fs.readFileSync('src/schema.graphql').toString('utf-8')
 export const schema = graphql.buildSchema(gqlSchema)
@@ -45,7 +47,13 @@ type UpdateVisitor = {
 type CreateTestdrive = {
   visitor: string,
   car: string,
-  driversLicense: string
+  signature: string
+}
+
+const createTestdrive = async ({car, visitor, signature}:CreateTestdrive, req:$Request) => {
+  let session = await sessions.get(req.get('Authorization'))
+  let testdrive = await testdrives.create(car, visitor, signature, req.body.data)(session)
+  return testdrive;
 }
 
 const testHandler = req => {

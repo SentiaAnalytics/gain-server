@@ -4,12 +4,10 @@ import type {User} from './users'
 import * as users from './users'
 import type {Dealership} from './dealerships'
 import * as dealerships from './dealerships'
-import type {Testdrive, TestdriveInput} from './testdrives'
+import type {Testdrive} from './testdrives'
 import * as testdrives from './testdrives'
 import type {Queue} from './queues'
 import * as queues from './queues'
-import type {Token} from './jwt'
-import * as jwt from './jwt'
 import type {CPRResult} from './cpr'
 import cprLookup from './cpr'
 import type {MySQLResult} from './mysql'
@@ -17,6 +15,24 @@ import mysql from './mysql'
 import {v4 as uuid} from 'uuid'
 import * as crypto from './crypto'
 import * as util from './util'
+import jwt from 'jsonwebtoken'
+import config from './config'
+
+export type Token = {
+  _user: string,
+  _dealership: string
+}
+
+export const createAuthToken = (_user:String, _dealership:String):string => jwt.sign({_user, _dealership}, config.jwt_secret, {expiresIn: '10d'})
+
+export const decodeJWT = (token:string):Token => jwt.decode(token)
+
+export const verifyJWT = (token:string):Promise<Token> =>
+  new Promise((resolve, reject) =>
+    jwt.verify(token, config.jwt_secret, (err, data) =>
+        err ? reject(err): resolve(decodeJWT(token))
+      )
+  )
 
 const log = (key:string) => (value:any) => (console.log(key, value), value)
 
@@ -49,7 +65,7 @@ const toSession = (token:string, {_user, _dealership}: Token):Session =>
 
 export const get = async (token:?string):Promise<Session> => {
   if (!token) return Promise.reject(new Error('Missing Session Token'))
-  const {_user, _dealership} = await jwt.verify(token)
+  const {_user, _dealership} = await verifyJWT(token)
   return toSession(token, {_user, _dealership})
 }
 
@@ -61,5 +77,5 @@ export const authenticate = async (email:string, password:string):Promise<Sessio
   } catch (e) { 
     throw new Error('Invalid email or password')  
   }
-  return get(jwt.sign({_user: user.id, _dealership: user._dealership}))
+  return get(createAuthToken(user.id, user._dealership))
 }
