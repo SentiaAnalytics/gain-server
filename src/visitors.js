@@ -225,3 +225,16 @@ export const update = (id:string, visitorUpdate:VisitorUpdate) => async (session
   
   return toVisitor(visitor)
 }
+
+export const finishTestDrive = (id:string) => async (session:Session):Promise<Visitor> => {
+  const visitor = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
+  if (visitor.status !== STATUS_ON_TESTDRIVE) return Promise.reject(new Error('Visitor must have status on testdrive'))
+  const update = {
+    status: STATUS_ACTIVE,
+    time_served: util.getTimestamp(),
+    served_by: session._user
+  }
+
+  await db.run(r.table('visitors').get(id).update(update))
+  return get(id)
+}
