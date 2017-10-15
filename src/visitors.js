@@ -206,7 +206,7 @@ export const dequeue = (id:string) => async (session:Session):Promise<Visitor> =
 
   await db.run(r.table('visitors').get(id).update(update))
   const smsBody = `
-    Det er din tur! \n ${user.forenames} ${user.lastname} venter på dig ved indgangen \n Tak for din tålmodighed`
+    Det er din tur! \n ${user.forenames} ${user.lastname} venter på dig ved indgangen. \n Tak for din tålmodighed`
   await sms.send(visitor.mobile, smsBody)
   return get(id)
 }
