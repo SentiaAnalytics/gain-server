@@ -197,8 +197,15 @@ export const dequeue = (id:string) => async (session:Session):Promise<Visitor> =
     time_served: util.getTimestamp(),
     served_by: session._user
   }
+  const user = await users.get(session._user)
 
   await db.run(r.table('visitors').get(id).update(update))
+  const smsBody = `
+    Det er din tur! \n
+    ${user.forenames} ${user.lastname} venter på dig ved indgangen \
+    Tak for din tålmodighed
+  `
+  await sms.send(visitor.mobile, smsBody)
   return get(id)
 }
 
