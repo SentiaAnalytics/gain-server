@@ -170,7 +170,6 @@ export default ({testdrive}) => {
     <html>
       <head>
         <title>Køreseddel</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <style>{`
           @media (min-width: 800px) { 
             main {
