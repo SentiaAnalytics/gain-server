@@ -75,7 +75,8 @@ export const root = {
   createCar: ({car}: {car:CarInput}, req:$Request) => sessions.get(req.get('Authorization')).then(cars.create(car)),
   updateCar: ({id, car}: {id:string, car:CarInput}, req:$Request) => sessions.get(req.get('Authorization')).then(cars.update(id, car)),
   deleteCar: ({id}: {id:string}, req:$Request) => sessions.get(req.get('Authorization')).then(cars.del(id)),
-  createTestdrive,
+  createTestdrive: ({car, visitor, signature}:CreateTestdrive, req:$Request) => sessions.get(req.get('Authorization')).then(testdrives.create(car, visitor, signature, req.body.data)),
+  finishTestDrive: ({visitorId}:Dequeue, req:$Request) =>  sessions.get(req.get('Authorization')).then(visitors.finishTestDrive(visitorId)),
 }
 
 export default graphqlConnect(req => { 
