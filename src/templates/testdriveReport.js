@@ -212,8 +212,8 @@ export default ({testdrive}) => {
               <Logo/>
             </Row>
             <Row>
-              <Field name="TUR START" value="now"/>
-              <Field name="TUR SLUT" value="now"/>
+              <Field name="TUR START" value={testdrive.timeCreated}/>
+              <Field name="TUR SLUT" value={testdrive.timeFinished || "-"}/>
             </Row>
           </header>
           <Section title="Forhandler">

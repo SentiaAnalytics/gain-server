@@ -10,11 +10,14 @@ import type {Visitor} from './visitors'
 import * as visitors from './visitors'
 import type {Car} from './cars'
 import * as cars from './cars'
+import type {User} from './users'
+import * as users from './users'
 
 
 export type Dealership = {
   name:string,
   id:string,
+  users: () => Promise<User[]>,
   street: string,
   houseNumber: string,
   floor: string,
@@ -35,6 +38,7 @@ const toDealership = async (_dealership:*):Promise<Dealership> => {
   return {
     id: _dealership.id,
     name: _dealership.name,
+    users: () => users.getByDealership(_dealership.id),
     street: _dealership.street,
     houseNumber: _dealership.houseNumber,
     floor: _dealership.floor,

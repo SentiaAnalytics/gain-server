@@ -39,6 +39,11 @@ export const getByEmail = (email:string):Promise<User> =>
     .then(([x]) => x)
     .then(toUser)
 
+export const getByDealership = (dealership:string):Promise<User[]> =>
+  db.toArray(r.table('users').getAll(dealership, {index: 'dealership'}))
+    .then(users => Promise.all(users.map(toUser)))
+
+
 export const get = (id:string):Promise<User> =>
   db.run(r.table('users').get(id))
     .then(toUser)

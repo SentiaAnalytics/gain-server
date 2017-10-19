@@ -27,6 +27,8 @@ const fetchTestdriveData = async (testdrive, authToken) => {
           testdrive(id: $testdrive) {
             id
             signature
+            timeCreated
+            timeFinished
             created_by {
               forenames
               lastname
