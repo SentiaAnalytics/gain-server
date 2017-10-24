@@ -12,6 +12,8 @@ import * as testdrives from './testdrives'
 import type {CarInput} from './cars'
 import * as cars from './cars'
 import * as queues from './queues'
+import type {User, UserInput} from './users' 
+import * as users from './users'
 
 
 const gqlSchema = fs.readFileSync('src/schema.graphql').toString('utf-8')
@@ -21,6 +23,7 @@ type Credentials = {
   email:string,
   password:string
 }
+
 type Enqueue = {
   visitor:VisitorInput,
   queue: string
@@ -56,9 +59,16 @@ const createTestdrive = async ({car, visitor, signature}:CreateTestdrive, req:$R
   return testdrive;
 }
 
-const testHandler = req => {
-  console.log(JSON.stringify(req.body, null, 2))
-};
+const createUser = async ({user}:{user:User}, req:$Request):Promise<User> => {
+  let session = await sessions.get(req.get('Authorization'))
+  return users.create(user, session)
+}
+
+const updateUser = async ({userId, user}:{userId:string, user:User}, req:$Request):Promise<User> => {
+  let session = await sessions.get(req.get('Authorization'))
+  return users.update(userId, user, session)
+}
+
 
 export const root = {
   version: require('../package.json').version,
@@ -77,6 +87,8 @@ export const root = {
   deleteCar: ({id}: {id:string}, req:$Request) => sessions.get(req.get('Authorization')).then(cars.del(id)),
   createTestdrive: ({car, visitor, signature}:CreateTestdrive, req:$Request) => sessions.get(req.get('Authorization')).then(testdrives.create(car, visitor, signature, req.body.data)),
   finishTestDrive: ({visitorId}:Dequeue, req:$Request) =>  sessions.get(req.get('Authorization')).then(visitors.finishTestDrive(visitorId)),
+  createUser,
+  updateUser,
 }
 
 export default graphqlConnect(req => { 

@@ -1,0 +1,6 @@
+*
+!app.js
+!package.json
+!schema.graphql
+!node_modules/**
+!build/**

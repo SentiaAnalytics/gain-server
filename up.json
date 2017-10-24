@@ -1,0 +1,26 @@
+{
+  "name": "gain-server",
+  "profile": "apex",
+  "regions": ["eu-central-1"],
+  "build": "npm run build",
+  "environment": {
+    "JWT_SECRET": "shhh",
+    "TESTDRIVE_REPORT_JWT_SECRET": "testdrive",
+    "CPR_USER_ID": "0361",
+    "CPR_USERNAME": "WUDI0160",
+    "CPR_PASSWORD": "@3gfKisc",
+    "CPR_HOST": "direkte-demo.cpr.dk",
+    "RETHINKDB_URL": "rethinkdb://admin:tigerwaterclockboulder@rethinkdb.sentia.ai:28015/gain",
+    "MYSQL_URL": "mysql://sentia:tigerwaterclockboulder@mysql.sentia.ai:3306/ncg",
+    
+    "EMAIL_USER": "noreply@gain.ai",
+    "EMAIL_PASSWORD": "rvTixrNS",
+    "EMAIL_SERVER": "smtp.gmail.com",
+    
+    "TWILIO_SID": "AC161b6f5b29cfc34b07f4fc071e2fd356",
+    "TWILIO_TOKEN": "a9b0cc4c7a094a4a42bb9118647a9c5f",
+    "TWILIO_MESSAGING_SERVICE": "MG369ca6350d6f4277831b38f1646d0c4b",
+    "SEND_SMS": "false"
+    
+  }
+}

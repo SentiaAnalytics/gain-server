@@ -29,9 +29,9 @@ input VisitorUpdate {
 }
 
 input UserInput {
-  email: String!
   forenames: String
   lastname: String
+  email: String
 }
 
 type Dealership {
@@ -53,14 +53,8 @@ type Dealership {
   country: String 
 }
 
-enum UserRole {
-  Admin,
-  User
-}
-
 type User {
   id: ID
-  role: UserRole
   email: String
   forenames: String
   lastname: String
@@ -255,7 +249,6 @@ type Mutation {
   updateVisitor(id: ID!, visitorUpdate:VisitorUpdate):Visitor
   createTestdrive(visitor:ID!, car: ID!, signature: String!): Testdrive
   finishTestDrive(visitorId:ID!): Visitor
-  createUser(user:UserInput!): User!
-  updateUser(userId: ID!, user:UserInput!): User!
+  createUser(user:UserInput!): User
   test: String!
 }
