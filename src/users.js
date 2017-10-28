@@ -28,12 +28,6 @@ export type User = {
 
 const toUser = async (_user:*):Promise<User> => {
   assert(_user, 'User not found')
-  assert(_user.id, 'Invalid user')
-  assert(_user.forenames, 'Invalid user')
-  assert(_user.lastname, 'Invalid user')
-  assert(_user.email, 'Invalid user')
-  assert(_user.password, 'Invalid user')
-
   return {
     id: _user.id,
     role: _user.role || "User",
@@ -91,4 +85,13 @@ export const update = async (userid: string, userInput:User, session:Session) =>
   await db.run(r.table('users').get(userid).update(userInput))
   let user = await db.run(r.table('users').get(userid))
   return toUser(user)
+};
+
+export const del = async (userid: string, session:Session) => {
+  let admin = await db.run(r.table('users').get(session._user))
+  if (admin.role !== "Admin") throw new Error('You do not have permission to create new users')
+
+  let result = await db.run(r.table('users').get(userid).delete())
+  console.log(result);
+  return true;
 };

@@ -69,7 +69,7 @@ type User {
 
 type Testdrive {
   id: ID!
-  created_by: User!
+  created_by: User
   dealership: Dealership!
   date: String!
   timeCreated: String!
@@ -243,6 +243,8 @@ type Query {
   public:Public,
   authenticate(email: String!, password: String!): Session
 }
+scalar Date
+
 
 type Mutation {
   dequeue(visitorId:ID!): Visitor
@@ -257,5 +259,5 @@ type Mutation {
   finishTestDrive(visitorId:ID!): Visitor
   createUser(user:UserInput!): User!
   updateUser(userId: ID!, user:UserInput!): User!
-  test: String!
+  deleteUser(userId: ID!): Boolean!
 }
