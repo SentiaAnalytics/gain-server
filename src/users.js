@@ -80,7 +80,7 @@ export const create = async (userInput:UserInput, session:Session) => {
 
 export const update = async (userid: string, userInput:User, session:Session) => {
   let admin = await db.run(r.table('users').get(session._user))
-  if (admin.role !== "Admin") throw new Error('You do not have permission to create new users')
+  if (admin.role !== "Admin") throw new Error('Du skal være administrator for at oprette brugere')
   
   await db.run(r.table('users').get(userid).update(userInput))
   let user = await db.run(r.table('users').get(userid))
@@ -89,8 +89,8 @@ export const update = async (userid: string, userInput:User, session:Session) =>
 
 export const del = async (userid: string, session:Session) => {
   let admin = await db.run(r.table('users').get(session._user))
-  if (admin.role !== "Admin") throw new Error('You do not have permission to create new users')
-  if (admin.id === userid) throw new Error("You cannot delete yourself");
+  if (admin.role !== "Admin") throw new Error('Du skal være administrator for at oprette brugere')
+  if (admin.id === userid) throw new Error("Du kan ikke slette dig selv");
 
   let result = await db.run(r.table('users').get(userid).delete())
   console.log(result);
