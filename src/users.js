@@ -90,7 +90,7 @@ export const update = async (userid: string, userInput:User, session:Session) =>
 export const del = async (userid: string, session:Session) => {
   let admin = await db.run(r.table('users').get(session._user))
   if (admin.role !== "Admin") throw new Error('You do not have permission to create new users')
-  if (admin.id === userid) throw new Error("You cannot delete your self");
+  if (admin.id === userid) throw new Error("You cannot delete yourself");
 
   let result = await db.run(r.table('users').get(userid).delete())
   console.log(result);
