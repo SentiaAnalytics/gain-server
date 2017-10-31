@@ -93,5 +93,5 @@ export const del = async (userid: string, session:Session) => {
 
   let result = await db.run(r.table('users').get(userid).delete())
   console.log(result);
-  return true;
+  return userid;
 };

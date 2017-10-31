@@ -259,5 +259,5 @@ type Mutation {
   finishTestDrive(visitorId:ID!): Visitor
   createUser(user:UserInput!): User!
   updateUser(userId: ID!, user:UserInput!): User!
-  deleteUser(userId: ID!): Boolean!
+  deleteUser(userId: ID!): ID!
 }
