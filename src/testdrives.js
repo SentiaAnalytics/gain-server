@@ -75,7 +75,7 @@ export const create = (car:string, visitor:string, signature: string, driversLic
     time_created: util.getTimestamp()
   }
   await db.run(r.table('testdrives').insert(testdrive))
-  const token = await jwt.sign({_testdrive: testdrive.id, _user: session._user, _dealership: session._dealership}, config.testdrive_report_jwt_secret, {})
+  const token = await jwt.sign({_testdrive: testdrive.id, _user: session._user, _dealership: session._dealership}, config.jwt_testdrive_report, {})
   console.log(token)
   const smsBody = `
     Tak fordi du prøver vores ${_car.brand} ${_car.model}.\n

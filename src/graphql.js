@@ -68,10 +68,21 @@ const updateUser = async ({userId, user}:{userId:string, user:User}, req:$Reques
   let session = await sessions.get(req.get('Authorization'))
   return users.update(userId, user, session)
 }
+
 const deleteUser = async ({userId}:{userId:string}, req:$Request):Promise<Bool> => {
   let session = await sessions.get(req.get('Authorization'))
   return users.del(userId, session)
 }
+
+const requestPasswordReset = async ({email}: {email: string}): Promise<Bool> => {
+  return users.requestPasswordReset(email)
+}
+
+const resetPassword = async ({token, password}: {token: string, password: string}) : Promise<Session> => {
+  let user = await users.resetPassword(token, password);
+  return sessions.authenticate(user.email, password)
+}
+
 
 
 export const root = {
@@ -93,7 +104,9 @@ export const root = {
   finishTestDrive: ({visitorId}:Dequeue, req:$Request) =>  sessions.get(req.get('Authorization')).then(visitors.finishTestDrive(visitorId)),
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  requestPasswordReset,
+  resetPassword
 }
 
 export default graphqlConnect(req => { 

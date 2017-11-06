@@ -260,4 +260,6 @@ type Mutation {
   createUser(user:UserInput!): User!
   updateUser(userId: ID!, user:UserInput!): User!
   deleteUser(userId: ID!): ID!
+  requestPasswordReset(email: String!): String!
+  resetPassword(token:String!, password:String!): Session!
 }

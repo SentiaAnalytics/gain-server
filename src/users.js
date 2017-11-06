@@ -8,6 +8,13 @@ import * as util from './util'
 import type {Session} from './sessions'
 import * as sessions from './sessions'
 import * as crypto from './crypto'
+import jwt from 'jsonwebtoken'
+import config from './config'
+import * as emails from './emails'
+
+export type Token = {
+  id: string
+}
 
 export type UserInput = {
   email: string,
@@ -96,3 +103,31 @@ export const del = async (userid: string, session:Session) => {
   console.log(result);
   return userid;
 };
+
+export const createResetToken = (id:string,):string => jwt.sign({id}, config.jwt_reset_password, {expiresIn: '10m'})
+
+export const decodeJWT = (token:string):Token => jwt.decode(token)
+
+export const verifyJWT = (token:string):Promise<Token> =>
+  new Promise((resolve, reject) =>
+    jwt.verify(token, config.jwt_reset_password, (err, data) =>
+        err ? reject(err): resolve(decodeJWT(token))
+      )
+  )
+export const requestPasswordReset = async (email: string) => {
+  let user = await getByEmail(email);
+  if (!user) return "Hvis en bruger med den indtastede email eksisterer vil du modtage en mail med et link"
+  let token = createResetToken(user.id)
+  console.log(token)
+  // await emails.sendResetPassword(user, token)
+  return "Hvis en bruger med den indtastede email eksisterer vil du modtage en mail med et link";
+};
+
+export const resetPassword = async (token:string, password:string) => {
+  let {id} = await verifyJWT(token)
+  let user = await get(id)
+  if (!user) throw new Error("Kunne ikke finde en matchende bruger")
+  let hash = await crypto.hash(password)
+  await db.run(r.table('users').get(id).update({password:hash}))
+  return toUser(user)
+}

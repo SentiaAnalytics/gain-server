@@ -13,7 +13,7 @@ export const decodeJWT = (token:string):Token => jwt.decode(token)
 
 export const verifyJWT = (token:string):Promise<Token> =>
   new Promise((resolve, reject) =>
-    jwt.verify(token, config.testdrive_report_jwt_secret, (err, data) =>
+    jwt.verify(token, config.jwt_testdrive_report, (err, data) =>
         err ? reject(HttpError.Unauthorized(err)): resolve(decodeJWT(token))
       )
   )

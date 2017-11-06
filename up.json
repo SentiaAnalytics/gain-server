@@ -5,7 +5,8 @@
   "build": "npm run build",
   "environment": {
     "JWT_SECRET": "shhh",
-    "TESTDRIVE_REPORT_JWT_SECRET": "testdrive",
+    "JWT_RESET_PASSWORD": "testdrive",
+    "JWT_TESTDRIVE_REPORT": "testdrive",
     "CPR_USER_ID": "0361",
     "CPR_USERNAME": "WUDI0160",
     "CPR_PASSWORD": "@3gfKisc",

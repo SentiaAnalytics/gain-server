@@ -23,13 +23,13 @@ export type Token = {
   _dealership: string
 }
 
-export const createAuthToken = (_user:String, _dealership:String):string => jwt.sign({_user, _dealership}, config.jwt_secret, {expiresIn: '10d'})
+export const createAuthToken = (_user:String, _dealership:String):string => jwt.sign({_user, _dealership}, config.jwt_session, {expiresIn: '10d'})
 
 export const decodeJWT = (token:string):Token => jwt.decode(token)
 
 export const verifyJWT = (token:string):Promise<Token> =>
   new Promise((resolve, reject) =>
-    jwt.verify(token, config.jwt_secret, (err, data) =>
+    jwt.verify(token, config.jwt_session, (err, data) =>
         err ? reject(err): resolve(decodeJWT(token))
       )
   )
