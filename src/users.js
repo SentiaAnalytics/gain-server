@@ -119,7 +119,7 @@ export const requestPasswordReset = async (email: string) => {
   if (!user) return "Hvis en bruger med den indtastede email eksisterer vil du modtage en mail med et link"
   let token = createResetToken(user.id)
   console.log(token)
-  // await emails.sendResetPassword(user, token)
+  await emails.sendResetPassword(user, token)
   return "Hvis en bruger med den indtastede email eksisterer vil du modtage en mail med et link";
 };
 

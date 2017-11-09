@@ -19,7 +19,7 @@ const ResetPassword = ({user, token})=>
 <div>
   <h1>Nulstil Password</h1>
   <p> Vi har modtaget en forespørgsel om at nulstille dit password. Hvis du ikke har anmodet om at nulstille dit password kontakt da venligst kundeservice på <a href="mailto:info@gain.ai">info@gain.ai</a></p>
-  <a href={`https://gain.ai:8080/resetpassword/${token}`}>Nulstil Password</a>
+  <a href={`https://app.gain.ai/resetpassword/${token}`}>Nulstil Password</a>
 </div>
 
 
@@ -37,6 +37,6 @@ export const testdriveConfirmation = (testdrive, token) =>
       from: 'noreply <noreply@gain.ai>',
       to: user.email,
       subject: 'Glemt Password?',
-      text: `https://gain.ai:8080/testdrives/${token}`,
+      text: `https://app.gain.ai/testdrives/${token}`,
       html: renderToString(<ResetPassword user={user} token={token}/>),
     })
