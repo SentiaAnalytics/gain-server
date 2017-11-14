@@ -33,7 +33,7 @@ export type Testdrive = {
 }
 
 const toTestdrive = async (_testdrive:*):Promise<Testdrive> => {
-  assert(_testdrive, 'Could not find Testdrive')
+  assert(_testdrive, 'Kunne ikke fined prøvekørsel')
 
   return {
     id: _testdrive.id,
@@ -59,11 +59,11 @@ export const getAll = (dealership:string):Promise<Testdrive[]> =>
 
 export const create = (car:string, visitor:string, signature: string, driversLicense:string) => async (session:Session):Promise<Testdrive> => {
   const _car = await cars.get(car)
-  if (_car._dealership !== session._dealership) throw new Error('Car does not exist')
-  if (_car.disabled) throw new Error('Car is disabled')
+  if (_car._dealership !== session._dealership) throw new Error('Bilen findes ikke')
+  if (_car.disabled) throw new Error('Bilen er inaktiv')
 
   const _visitor = await visitors.get(visitor)
-  if (_visitor._dealership !== session._dealership) throw new Error('Visitor does not exist')
+  if (_visitor._dealership !== session._dealership) throw new Error('Kunden findes ikke')
   const testdrive = {
     id: util.uuid(),
     car,

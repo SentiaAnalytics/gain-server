@@ -63,11 +63,11 @@ export const get = (id:string):Promise<User> =>
 
 export const create = async (userInput:UserInput, session:Session) => {
   let admin = await db.run(r.table('users').get(session._user))
-  if (admin.role !== "Admin") throw new Error('You do not have permission to create new users')
+  if (admin.role !== "Admin") throw new Error('Du skal være administrator for at oprette brugere')
 
 
   const existingUsers = await db.toArray(r.table('users').getAll(userInput.email, {index: 'email'}))
-  if (existingUsers.length !== 0) throw new Error('A user with that email already exists')
+  if (existingUsers.length !== 0) throw new Error('En bruger med den email findes allerede')
 
   let password = await crypto.hash(util.uuid());
 

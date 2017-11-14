@@ -97,7 +97,7 @@ const parseMobile = (mob:string) => {
 }
 
 export const toVisitor = (_visitor:Object):Promise<Visitor> => {
-  if (!_visitor) return Promise.reject(new Error('could not find visitor'))
+  if (!_visitor) return Promise.reject(new Error('Kunne ikke finde kunden'))
   return Promise.resolve({
     id: _visitor.id,
     _dealership: _visitor.dealership,
@@ -176,7 +176,7 @@ export const getPositionInQueue = async ({id, dealership, queue}: {id:string, de
 
 export const enqueue = (queue:string, visitorInput:VisitorInput) => async (session:Session) => {
   const q = await queues.get(queue)
-  if (q == null || q._dealership !== session._dealership) throw new Error('Could not find queue')
+  if (q == null || q._dealership !== session._dealership) throw new Error('Kunne ikke finde køen')
   const visitor = {
     id: uuid(),
     status: STATUS_WAITING,
@@ -189,14 +189,15 @@ export const enqueue = (queue:string, visitorInput:VisitorInput) => async (sessi
   }
   return db.run(r.table('visitors').insert(visitor))
     .then(() => getPositionInQueue(visitor))
-    .then(pos => sms.send(visitor.mobile, `Thank you you are number ${pos} in the queue. Goto https://gain.ai:8091/#/visitor/${visitor.id} to see when your turn is up. as well as lots of interesting things about the dealership`))
+    .then(pos => sms.send(visitor.mobile, `Tak du er nummer ${pos} i køen. Gå til https://gain.ai:8091/#/visitor/${visitor.id} for at se hvornår det er din tur.Du kan også finde interessant information forhandleren`))
+
     .then(() => toVisitor(visitor))
 
 }
 
 export const dequeue = (id:string) => async (session:Session):Promise<Visitor> => {
   const visitor = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
-  if (visitor.status !== STATUS_WAITING) return Promise.reject(new Error('Visitor must have status waiting'))
+  if (visitor.status !== STATUS_WAITING) return Promise.reject(new Error('Kunde skal skal være i kø for at blive aktiveret'))
   const update = {
     status: STATUS_ACTIVE,
     time_served: util.getTimestamp(),
@@ -214,7 +215,7 @@ export const dequeue = (id:string) => async (session:Session):Promise<Visitor> =
 export const updateStatus = (id:string, status:VisitorStatus) => async (session:Session):Promise<Visitor> => {
   const visitorBefore = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
   console.log('visitorBefore', visitorBefore)
-  if (visitorBefore.status !== 'Active') throw new Error(`Visitor must be ${STATUS_ACTIVE} but was ${visitorBefore.status}`)
+  if (visitorBefore.status !== 'Active') throw new Error(`Kunden skal være ${STATUS_ACTIVE} men var ${visitorBefore.status}`)
 
   await db.run(r.table('visitors').get(id).update({status, time_done: util.getTimestamp()}))
 
@@ -227,7 +228,7 @@ export const update = (id:string, visitorUpdate:VisitorUpdate) => async (session
 
   const visitorBefore = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
 
-  if (visitorBefore.status !== 'Active') throw new Error(`Visitor must be ${STATUS_ACTIVE} but was ${visitorBefore.status}`)
+  if (visitorBefore.status !== 'Active') throw new Error(`Kunden skal være ${STATUS_ACTIVE} men var ${visitorBefore.status}`)
 
   await db.run(r.table('visitors').get(id).update(visitorUpdate))
   const visitor = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
@@ -244,7 +245,7 @@ export const finishTestDrive = (id:string) => async (session:Session):Promise<Vi
   await db.run(r.table('testdrives').get(testdrive.id).update(testdrive_update))
   
   const visitor = await db.run(r.table('visitors').getAll(id).filter({dealership: session._dealership}).nth(0))
-  if (visitor.status !== STATUS_ON_TESTDRIVE) return Promise.reject(new Error('Visitor must have status on testdrive'))
+  if (visitor.status !== STATUS_ON_TESTDRIVE) return Promise.reject(new Error('Kunden er ikke på prøvetur'))
   const visitor_update = {
     status: STATUS_ACTIVE,
     time_served: util.getTimestamp(),

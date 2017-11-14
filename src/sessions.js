@@ -60,11 +60,11 @@ const toSession = (token:string, {_user, _dealership}: Token):Session =>
     .then(({data, fields}) => ({data: JSON.stringify(data), fields})),
   queues: () => queues.getAll(_dealership),
   queue: ({id}) => queues.get(id)
-    .then(q => q._dealership === _dealership ? q : Promise.reject(new Error('Could not fin queue')))
+    .then(q => q._dealership === _dealership ? q : Promise.reject(new Error('Kunne ikke finde den pågældende kø')))
 })
 
 export const get = async (token:?string):Promise<Session> => {
-  if (!token) return Promise.reject(new Error('Missing Session Token'))
+  if (!token) return Promise.reject(new Error('Mangler en session token'))
   const {_user, _dealership} = await verifyJWT(token)
   return toSession(token, {_user, _dealership})
 }
@@ -75,7 +75,7 @@ export const authenticate = async (email:string, password:string):Promise<Sessio
     user = await users.getByEmail(email)
     res = await crypto.compare(password, user.password)
   } catch (e) { 
-    throw new Error('Invalid email or password')  
+    throw new Error('Ugyldig bruger eller password')  
   }
   return get(createAuthToken(user.id, user._dealership))
 }
