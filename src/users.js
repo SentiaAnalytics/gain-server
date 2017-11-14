@@ -34,7 +34,7 @@ export type User = {
 }
 
 const toUser = async (_user:*):Promise<User> => {
-  assert(_user, 'User not found')
+  assert(_user, 'Brugeren findes ikke')
   return {
     id: _user.id,
     role: _user.role || "User",
