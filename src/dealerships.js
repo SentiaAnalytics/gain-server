@@ -32,9 +32,9 @@ export type Dealership = {
 }
 
 const toDealership = async (_dealership:*):Promise<Dealership> => {
-  assert(_dealership, 'Invalid dealership')
-  assert(_dealership.id, 'Invalid dealership')
-  assert(_dealership.name, 'Invalid dealership')
+  assert(_dealership, 'Ugyldig forhandler')
+  assert(_dealership.id, 'Ugyldig forhandler')
+  assert(_dealership.name, 'Ugyldig forhandler')
   return {
     id: _dealership.id,
     name: _dealership.name,
@@ -48,7 +48,7 @@ const toDealership = async (_dealership:*):Promise<Dealership> => {
     testdrives: () => testdrives.getAll(_dealership.id),
     queues: () => queues.getAll(_dealership.id),
     queue: ({id}) => queues.get(id)
-      .then(q => q._dealership === _dealership.id ? q : Promise.reject(new Error('Could not find queue'))),
+      .then(q => q._dealership === _dealership.id ? q : Promise.reject(new Error('Kunne ikke finde kø'))),
     visitors: () => visitors.getByDealership(_dealership.id),
     visitor: ({id}) => visitors.get(id)
       .then((visitor:Visitor) => visitor._dealership === _dealership.id ? visitor : null),

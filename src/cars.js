@@ -77,4 +77,4 @@ export const update = (id:string, carInput:CarInput) => async (session:Session) 
 export const del = (id:string) => (session:Session) =>
   db.run(carQuery(id, session._dealership).delete())
     .then(changes => changes.deleted === 1)
-    .catch(err => (console.log(err), Promise.reject(new Error(`Could not find car with id ${id}`))))
+    .catch(err => (console.log(err), Promise.reject(new Error(`Kunne ikke finde bil med id: ${id}`))))
